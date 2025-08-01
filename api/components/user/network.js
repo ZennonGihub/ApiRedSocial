@@ -53,6 +53,15 @@ router.post("/", secure(), async (req, res) => {
   }
 });
 
+router.get("/:id/following", secure("follow"), async (req, res, next) => {
+  try {
+    const userFollowing = await controller.following(req.params.id);
+    response.success(req, res, userFollowing, 201);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post("/follow/:id", secure("follow"), async (req, res) => {
   try {
     const userFrom = req.user.sub;

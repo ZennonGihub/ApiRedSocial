@@ -45,11 +45,17 @@ module.exports = function (injectedDb) {
     return db.remove(TABLA, id);
   }
 
-  async function follow(from, to) {
+  function follow(from, to) {
     return db.create(TABLA + "_follow", {
       user_from: from,
       user_to: to,
     });
+  }
+  async function following(user) {
+    const join = {};
+    join[TABLA] = "user_to";
+    const query = { user_from: user };
+    return await db.query(TABLA + "_follow", query, join);
   }
 
   return {
@@ -59,6 +65,7 @@ module.exports = function (injectedDb) {
     update,
     create,
     remove,
+    following,
     follow,
   };
 };
