@@ -8,6 +8,7 @@ const config = {
   dbpassword: process.env.DB_PASSWORD,
   host: process.env.DB_HOST,
   portdb: process.env.DB_PORT,
+  mysqlService: process.env.MYSQ_SERVICE_PORT || 3001,
 };
 
 module.exports = config;
