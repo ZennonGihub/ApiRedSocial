@@ -9,6 +9,9 @@ const config = {
   host: process.env.DB_HOST,
   portdb: process.env.DB_PORT,
   mysqlService: process.env.MYSQ_SERVICE_PORT || 3001,
+  mysqlServiceHost: process.env.MYSQ_SERVICE_HOST || "localhost",
+  postPort: process.env.POST_PORT || 3002,
+  dbRemote: process.env.DB_REMOTE || false,
 };
 
 module.exports = config;

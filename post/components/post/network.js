@@ -1,7 +1,6 @@
 const express = require("express");
-const response = require("./../../network/response");
+const response = require("../../../api/network/response.js");
 const controller = require("./index.js");
-const bodyParser = require("body-parser");
 
 const router = express.Router();
 

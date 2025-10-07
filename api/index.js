@@ -3,7 +3,7 @@ const express = require("express");
 const config = require("./../config");
 const errors = require("./network/errors");
 const user = require("./components/user/network");
-const post = require("./components/post/network");
+const post = require("../post/components/post/network");
 const auth = require("./components/auth/network");
 
 const app = express();
