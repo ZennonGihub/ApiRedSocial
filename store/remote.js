@@ -6,10 +6,27 @@ function createRemoteDB(host, port) {
   function list(table) {
     return req("GET", table);
   }
-  async function req(method, table, data) {
+  function get(table, id) {
+    return req("GET", `${table}/${id}`);
+  }
+  function create(table, data) {
+    return req("POST", table);
+  }
+  function update(table, id, data) {
+    return req("PATCH", `${table}/${id}`);
+  }
+  function remove(table, id) {
+    return req("DELETE", `${table}/${id}`);
+  }
+  function query(table, query, join) {
+    return req("GET", table, { query, join });
+  }
+
+  async function req(method, table, data, { params } = {}) {
     let uri = `${url}/${table}`;
     const config = {
       url: uri,
+      params,
       method,
       data,
     };
@@ -20,20 +37,13 @@ function createRemoteDB(host, port) {
       throw new Error(error.message);
     }
   }
-  function get(table, id) {
-    return req("GET", `${table}/${id}`);
-  }
-  function upsert(table, data) {
-    if (data && data.id) {
-      return req("DELETE", table, data);
-    }
-  }
-  function query(table, query, join) {}
 
   return {
     list,
     get,
-    upsert,
+    create,
+    update,
+    remove,
     query,
   };
 }
