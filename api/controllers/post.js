@@ -3,7 +3,7 @@ const TABLA = "post";
 module.exports = function (injectedDb) {
   let db = injectedDb;
   if (!db) {
-    db = require("../../../store/mysql");
+    db = require("../../../../store/mysql");
   }
 
   function list() {

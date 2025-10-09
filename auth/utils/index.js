@@ -4,7 +4,7 @@ const error = require("./../../utils/error");
 const jwt = require("jsonwebtoken");
 const config = require("../../config");
 
-async function sing(data) {
+async function sign(data) {
   return jwt.sign(data, config.jwtsecret || "titoSoto", { expiresIn: "15m" });
 }
 
@@ -46,6 +46,6 @@ function decodeHeader(req) {
   return decoded;
 }
 module.exports = {
-  sing,
+  sign,
   check,
 };
