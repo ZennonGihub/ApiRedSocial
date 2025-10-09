@@ -1,55 +1,41 @@
-const request = require("request");
+const axios = require("axios");
 
-function createRemotedDB(host, port) {
-  const URL = `http://${host}:${port}`;
+function createRemoteDB(host, port) {
+  const url = `http://${host}:${port}`;
 
   function list(table) {
     return req("GET", table);
   }
-  function get(table) {
-    return req("GET", table);
+  async function req(method, table, data) {
+    let uri = `${url}/${table}`;
+    const config = {
+      url: uri,
+      method,
+      data,
+    };
+    try {
+      const peticion = await axios(config);
+      return peticion.data.body;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
-
-  function create(table) {
-    return req("GET", table);
+  function get(table, id) {
+    return req("GET", `${table}/${id}`);
   }
-  function upsert(table) {
-    return req("GET", table);
+  function upsert(table, data) {
+    if (data && data.id) {
+      return req("DELETE", table, data);
+    }
   }
-  function req(method, table, data) {
-    let url = `${URL}/${table}`;
-    let body = "";
-    return new Promise((resolve, reject) => {
-      request(
-        {
-          method,
-          Headers: {
-            "Content-Type": "application/json",
-          },
-          url,
-          body,
-        },
-        (err, req, body) => {
-          if (err) {
-            console.error("Error database remote", err);
-            return reject(err.message);
-          }
-          const resp = JSON.parse(body);
-          if (resp.error) {
-            return reject(resp.error);
-          }
-          resolve(resp.data);
-        }
-      );
-    });
-  }
+  function query(table, query, join) {}
 
   return {
     list,
     get,
-    create,
     upsert,
+    query,
   };
 }
 
-module.exports = createRemotedDB;
+module.exports = createRemoteDB;
