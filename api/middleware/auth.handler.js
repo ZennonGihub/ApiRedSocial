@@ -1,13 +1,12 @@
-const boom = require("@hapi/boom");
 const { config } = require("./../../config");
 
-function checkApiKey(req, res, next) {
+function checkApiKey(req, res) {
   const apiKey = req.headers["api"];
   // Verifica que en los header de la peticion, venga la api key
   if (apiKey === config.apiKey) {
     next();
   } else {
-    next(boom.unauthorized("No autorizado"));
+    throw new Error("No autorizado");
   }
 }
 
@@ -18,7 +17,7 @@ function checkRoles(...roles) {
     if (roles.includes(user.role)) {
       next();
     } else {
-      next(boom.unauthorized("No autorizado"));
+      throw new Error("No autorizado");
     }
   };
 }

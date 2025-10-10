@@ -11,3 +11,5 @@ console.log("Mi config", config);
 app.listen(config.mysqlService, () => {
   console.log("servicio listo en el puerto: ", config.mysqlService);
 });
+
+module.exports = app;

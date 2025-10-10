@@ -2,13 +2,15 @@ const express = require("express");
 const user = require("./users");
 const post = require("./post");
 const auth = require("./auth");
+//const { checkApiKey } = require("../middleware/auth.handler");
 
 const app = express();
 app.use(express.json());
 
 function router(app) {
   const router = express.Router();
-  app.use(router);
+  //app.use("/api", router);
+  //router.use(checkApiKey);
 
   router.use("/api/user", user);
   router.use("/api/auth", auth);

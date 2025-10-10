@@ -4,6 +4,11 @@ const config = require("./../config");
 const errors = require("./Response/errors");
 const cookieParser = require("cookie-parser");
 const router = require("./router/index");
+const {
+  logsErrors,
+  boomErrorHandler,
+  errorHandler,
+} = require("./middleware/error.handler");
 
 const app = express();
 app.use(cookieParser());
@@ -16,3 +21,8 @@ app.listen(config.port, () => {
 });
 
 router(app);
+app.use(logsErrors);
+app.use(boomErrorHandler);
+app.use(errorHandler);
+
+module.exports = app;

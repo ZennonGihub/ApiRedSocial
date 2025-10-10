@@ -1,5 +1,5 @@
 const express = require("express");
-const secure = require("../../api/components/user/secure");
+const secure = require("../middleware/secure");
 const response = require("../Response/response");
 const controller = require("../dependencias/user");
 

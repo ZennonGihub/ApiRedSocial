@@ -5,7 +5,7 @@ const TABLA = "auth";
 module.exports = function (injectedDb) {
   let db = injectedDb;
   if (!db) {
-    db = require("./../../../store/mysql");
+    db = require("../../store/mysql");
   }
   async function login(username, password) {
     const data = await db.query(TABLA, { username: username });

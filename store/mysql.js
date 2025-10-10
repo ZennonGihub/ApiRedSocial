@@ -1,4 +1,4 @@
-const mysql = require("mysql2");
+const mysql = require("mysql2/promise");
 
 const config = require("./../config");
 
@@ -27,8 +27,9 @@ async function list(table) {
   }
   try {
     const list = await pool.query(`SELECT * FROM ${table}`);
-    return list;
+    return list[0];
   } catch (error) {
+    console.error(error);
     throw new Error(error.message);
   }
 }
@@ -39,7 +40,7 @@ async function get(table, id) {
   }
   try {
     const result = await pool.query(`SELECT * FROM ${table} WHERE id=?`, [id]);
-    return result;
+    return result[0];
   } catch (error) {
     throw new Error(error.message);
   }
@@ -54,7 +55,7 @@ async function update(table, data) {
       data,
       data.id,
     ]);
-    return result;
+    return result[0];
   } catch (error) {
     throw new Error(error.message);
   }
@@ -65,7 +66,7 @@ async function create(table, data) {
   }
   try {
     const result = await pool.query(`INSERT INTO ${table} SET ?`, data);
-    return result;
+    return result[0];
   } catch (error) {
     throw new Error(error.message);
   }

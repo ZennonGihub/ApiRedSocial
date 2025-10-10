@@ -57,8 +57,7 @@ module.exports = function (injectedDb) {
     const query = { user_from: user };
     return await db.query(TABLA + "_follow", query, join);
   }
-
-  module.exports = {
+  return {
     getFullDataBase,
     list,
     get,

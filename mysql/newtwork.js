@@ -1,5 +1,5 @@
 const express = require("express");
-const response = require("./../api/network/response");
+const response = require("../api/Response/response");
 const db = require("./../store/mysql");
 
 const router = express.Router();

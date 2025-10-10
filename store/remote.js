@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-function createRemoteDB(host, port) {
+module.exports = function createRemoteDB(host, port) {
   const url = `http://${host}:${port}`;
 
   function list(table) {
@@ -46,6 +46,4 @@ function createRemoteDB(host, port) {
     remove,
     query,
   };
-}
-
-module.exports = createRemoteDB;
+};
