@@ -1,21 +1,18 @@
 require("dotenv").config();
 const express = require("express");
 const config = require("./../config");
-const errors = require("./network/errors");
-const user = require("./components/user/network");
-const post = require("../post/components/post/network");
-const auth = require("./components/auth/network");
+const errors = require("./Response/errors");
+const cookieParser = require("cookie-parser");
+const router = require("./router/index");
 
 const app = express();
+app.use(cookieParser());
 app.use(express.json());
 
-// Router
-
-app.use("/api/user", user);
-app.use("/api/auth", auth);
-app.use("/api/post", post);
 app.use(errors);
 
 app.listen(config.port, () => {
   console.log(`El servidor esta corriendo en el puerto: ${config.port}`);
 });
+
+router(app);

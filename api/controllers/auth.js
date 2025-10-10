@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const auth = require("./../../../auth/utils");
+const auth = require("../../auth/utils/index");
 const TABLA = "auth";
 
 module.exports = function (injectedDb) {
@@ -7,7 +7,6 @@ module.exports = function (injectedDb) {
   if (!db) {
     db = require("./../../../store/mysql");
   }
-
   async function login(username, password) {
     const data = await db.query(TABLA, { username: username });
     const comparePass = await bcrypt.compare(password, data.password);

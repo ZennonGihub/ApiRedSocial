@@ -1,11 +1,11 @@
 const bcrypt = require("bcrypt");
-const auth = require("../auth/index");
+const auth = require("../../api/controllers/auth");
 const TABLA = "user";
 
 module.exports = function (injectedDb) {
   let db = injectedDb;
   if (!db) {
-    db = require("./../../../store/mysql");
+    db = require("../../store/mysql");
   }
 
   async function getFullDataBase() {
@@ -58,7 +58,7 @@ module.exports = function (injectedDb) {
     return await db.query(TABLA + "_follow", query, join);
   }
 
-  return {
+  module.exports = {
     getFullDataBase,
     list,
     get,

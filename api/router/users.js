@@ -1,7 +1,7 @@
 const express = require("express");
-const secure = require("./secure");
-const response = require("./../../network/response");
-const controller = require("./index.js");
+const secure = require("../../api/components/user/secure");
+const response = require("../Response/response");
+const controller = require("../dependencias/user");
 
 const router = express.Router();
 

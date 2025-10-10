@@ -8,76 +8,67 @@ const dbConfig = {
   password: config.dbpassword,
   user: config.user,
   port: config.portdb,
+  connectionLimit: 10,
+  multipleStatements: true,
 };
 
-let connection;
+// Crea una conexion "pool" con la base de datos
+const pool = mysql.createPool(dbConfig);
+// Lista de tablas permitidas para no permitir inyecciones sql
+const tablesList = ["user", "auth", "post", "user_follow"];
+const columnsPost = ["texto", "user"];
+const columnsUser = ["name", "username"];
+const columnsAuth = ["username", "password"];
+const columnsUserFollow = ["user_from", "user_to"];
 
-function handleCon() {
-  connection = mysql.createConnection(dbConfig);
-
-  connection.connect((error) => {
-    if (error) {
-      console.log("[errorDB]", error);
-
-      setTimeout(handleCon, 2000);
-    } else {
-      console.log("Base de datos conectada");
-    }
-  });
-  connection.on("error", (error) => {
-    console.log("[errorDB]", error);
-    if (error.code === "PROTOCOL_CONNECTION_LOST") {
-      handleCon();
-    } else {
-      throw error;
-    }
-  });
+async function list(table) {
+  if (!tablesList.includes(table)) {
+    throw new Error("Table not allowed");
+  }
+  try {
+    const list = await pool.query(`SELECT * FROM ${table}`);
+    return list;
+  } catch (error) {
+    throw new Error(error.message);
+  }
 }
 
-handleCon();
-
-function list(table) {
-  console.log("Esta es la base de datos");
-  return new Promise((resolve, reject) => {
-    connection.query(`SELECT * FROM ${table}`, (error, data) => {
-      if (error) return reject(error);
-      resolve(data);
-    });
-  });
+async function get(table, id) {
+  if (!tablesList.includes(table)) {
+    throw new Error("Table not allowed");
+  }
+  try {
+    const result = await pool.query(`SELECT * FROM ${table} WHERE id=?`, [id]);
+    return result;
+  } catch (error) {
+    throw new Error(error.message);
+  }
 }
 
-function get(table, id) {
-  return new Promise((resolve, reject) => {
-    connection.query(
-      `SELECT * FROM ${table} WHERE id=?`,
-      [id],
-      (error, data) => {
-        if (error) return reject(error);
-        resolve(data);
-      }
-    );
-  });
+async function update(table, data) {
+  if (!tablesList.includes(table)) {
+    throw new Error("Table not allowed");
+  }
+  try {
+    const result = await pool.query(`UPDATE ${table} SET ? WHERE id=?`, [
+      data,
+      data.id,
+    ]);
+    return result;
+  } catch (error) {
+    throw new Error(error.message);
+  }
 }
-
-function update(table, data) {
-  return new Promise((resolve, reject) => {
-    connection.query(
-      `UPDATE ${table} SET ? WHERE id=?`,
-      [data, data.id],
-      (error, result) => {
-        if (error) return reject(error);
-        resolve(result);
-      }
-    );
-  });
-}
-function create(table, data) {
-  return new Promise((resolve, reject) => {
-    connection.query(`INSERT INTO ${table} SET ?`, data, (error, result) => {
-      if (error) return reject(error);
-      resolve(result);
-    });
-  });
+async function create(table, data) {
+  if (!tablesList.includes(table)) {
+    throw new Error("Table not allowed");
+  }
+  try {
+    const result = await pool.query(`INSERT INTO ${table} SET ?`, data);
+    return result;
+  } catch (error) {
+    throw new Error(error.message);
+  }
 }
 
 function upsert(table, data) {
@@ -88,26 +79,35 @@ function upsert(table, data) {
   }
 }
 
-function query(table, query, join) {
+async function query(table, query, join) {
+  if (!tablesList.includes(table)) {
+    throw new Error("Table not allowed");
+  }
+
   let joinQuery = "";
   if (join) {
     const key = Object.keys(join)[0];
     const val = join[key];
-    joinQuery = `JOIN ${key} ON ${table}.${val} = ${key}.id`;
+
+    if (!tablesList.includes(key)) {
+      throw new Error("Join table not allowed");
+    }
+    const allowedColumns = ["user_id", "post_id", "category_id", "id"];
+    if (!allowedColumns.includes(val)) {
+      throw new Error("Join column not allowed");
+    }
+    joinQuery = `JOIN \`${key}\` ON \`${table}\`.\`${val}\` = \`${key}\`.id`;
   }
 
-  return new Promise((resolve, reject) => {
-    connection.query(
-      `SELECT * FROM ${table} ${joinQuery} WHERE ?`,
-      query,
-      (err, res) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve(res[0] || null);
-      }
+  try {
+    const [rows] = await pool.query(
+      `SELECT * FROM \`${table}\` ${joinQuery} WHERE ?`,
+      query
     );
-  });
+    return rows;
+  } catch (error) {
+    throw error;
+  }
 }
 
 module.exports = {
