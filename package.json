@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node --watch mysql/index.js",
-    "dev": "node --watch api/index.js"
+    "dev": "node --watch api/index.js",
+    "init": "node --watch post/index.js"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +22,7 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.2",
+    "redis": "^5.8.3",
     "request": "^2.88.2"
   }
 }

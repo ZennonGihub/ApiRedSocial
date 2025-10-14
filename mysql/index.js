@@ -1,6 +1,6 @@
 const express = require("express");
 const config = require("./../config");
-const router = require("./newtwork");
+const router = require("./db.router");
 
 const app = express();
 

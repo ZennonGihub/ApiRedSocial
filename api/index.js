@@ -3,7 +3,7 @@ const express = require("express");
 const config = require("./../config");
 const errors = require("./Response/errors");
 const cookieParser = require("cookie-parser");
-const router = require("./router/index");
+const routerApi = require("./router/index");
 const {
   logsErrors,
   boomErrorHandler,
@@ -20,7 +20,7 @@ app.listen(config.port, () => {
   console.log(`El servidor esta corriendo en el puerto: ${config.port}`);
 });
 
-router(app);
+routerApi(app);
 app.use(logsErrors);
 app.use(boomErrorHandler);
 app.use(errorHandler);

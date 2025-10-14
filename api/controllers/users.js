@@ -5,7 +5,7 @@ const TABLA = "user";
 module.exports = function (injectedDb) {
   let db = injectedDb;
   if (!db) {
-    db = require("../../store/mysql");
+    db = require("../../store/remoteMysql");
   }
 
   async function getFullDataBase() {

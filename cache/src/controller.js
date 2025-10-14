@@ -6,26 +6,34 @@ module.exports = function (injectedDb) {
     db = require("../../store/mysql");
   }
 
-  function list() {
+  async function list() {
     return db.list(TABLA);
   }
 
-  function remove(id) {
+  async function remove(id) {
     return db.remove(id, TABLA);
   }
 
-  function create(body) {
+  async function create(body) {
     const post = {
       texto: body.texto,
       user: body.user,
     };
-
     return db.create(TABLA, post);
+  }
+
+  async function update(id, body) {
+    const newPost = {
+      ...body,
+      id,
+    };
+    return db.update(TABLA, newPost);
   }
 
   return {
     list,
     remove,
     create,
+    update,
   };
 };
