@@ -1,4 +1,5 @@
 const { createClient } = require("redis");
+const { stringify } = require("yamljs");
 
 const client = createClient({
   url: process.env.REDIS_URL,
@@ -8,7 +9,7 @@ client.on("error", (err) => {
   console.log("Redis Client Error", err);
 });
 
-const main = async () => {
+const connect = async () => {
   try {
     await client.connect();
     console.log("base de datos conectada ", client.isOpen);
@@ -17,4 +18,29 @@ const main = async () => {
   }
 };
 
-module.exports = main;
+async function get(tabla) {
+  if (!tabla) return null;
+  const result = await client.get(tabla);
+  if (result === null) return null;
+  return JSON.parse(result);
+}
+
+async function getId(tabla, id) {
+  if (!tabla) return null;
+  let key = `${tabla}:${id}`;
+  return await get(key);
+}
+
+async function set(key, value) {
+  if (!value) return null;
+  const result = await client.set(key, JSON.stringify(value));
+  if (result === null) return null;
+  return result;
+}
+
+module.exports = {
+  get,
+  getId,
+  set,
+  connect,
+};
