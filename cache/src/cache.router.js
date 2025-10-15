@@ -1,12 +1,13 @@
 const express = require("express");
 const response = require("../../api/Response/response.js");
-const controller = require("./dependencia.js");
+const store = require("../../store/redis.js");
 
 const router = express.Router();
 
-router.get("/", async (req, res, next) => {
+router.get("/:table", async (req, res, next) => {
   try {
-    const lista = await controller.list();
+    const table = req.params.table;
+    const lista = await store.get(table);
     console.log("Esto esta en let lista: ", lista);
     response.success(req, res, lista, 200);
   } catch (error) {
@@ -14,14 +15,26 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.put("/", async (req, res, next) => {
+router.get("/:table/:id", async (req, res, next) => {
   try {
-    const body = req.body;
-    const post = await controller.update(body);
-    response.success(req, res, post, 200);
+    const id = req.params.id;
+    const table = req.params.table;
+    const lista = await store.getId(table, id);
+    console.log("Esto esta en let lista: ", lista);
+    response.success(req, res, lista, 200);
   } catch (error) {
     next(error);
   }
 });
 
+router.post("/:table", async (req, res, next) => {
+  try {
+    const data = req.body;
+    const table = req.params.table;
+    const result = await store.set(table, data);
+    response.success(req, res, result, 201);
+  } catch (error) {
+    next(error);
+  }
+});
 module.exports = router;

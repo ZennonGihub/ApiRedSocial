@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node --watch mysql/index.js",
     "dev": "node --watch api/index.js",
-    "init": "node --watch post/index.js"
+    "init": "node --watch post/index.js",
+    "iniciar": "node --watch cache/index.cache.js"
   },
   "keywords": [],
   "author": "",
