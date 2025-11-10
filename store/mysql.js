@@ -15,11 +15,43 @@ const dbConfig = {
 // Crea una conexion "pool" con la base de datos
 const pool = mysql.createPool(dbConfig);
 // Lista de tablas permitidas para no permitir inyecciones sql
-const tablesList = ["user", "auth", "post", "user_follow"];
-const columnsPost = ["texto", "user"];
-const columnsUser = ["name", "username"];
-const columnsAuth = ["username", "password"];
-const columnsUserFollow = ["user_from", "user_to"];
+const tablesList = [
+  "user",
+  "auth",
+  "post",
+  "follows",
+  "comentarios",
+  "estadopost",
+  "likecomentarios",
+  "likepost",
+];
+const columnsPost = [
+  "title",
+  "body",
+  "estadoPost_id",
+  "user_id",
+  "created_at",
+  "updated_at",
+];
+const columnsUser = [
+  "username",
+  "name",
+  "descripcion",
+  "created_at",
+  "updated_at",
+];
+const columnsAuth = ["user_id", "password_hash", "email", "updated_at"];
+const columnsUserFollow = ["follow_to", "follow_from"];
+const columnsComentarios = [
+  "id",
+  "comentario",
+  "user_id",
+  "post_id",
+  "created_at",
+];
+const columnsEstadoPost = ["id", "estado"];
+const columnsLikePost = ["user_id", "post_id"];
+const columnsLikeComentarios = ["user_id", "comentario_id"];
 
 async function list(table) {
   if (!tablesList.includes(table)) {
@@ -51,9 +83,10 @@ async function update(table, data) {
     throw new Error("Table not allowed");
   }
   try {
+    const { id, ...updateData } = data;
     const result = await pool.query(`UPDATE ${table} SET ? WHERE id=?`, [
-      data,
-      data.id,
+      updateData,
+      id,
     ]);
     return result[0];
   } catch (error) {
@@ -65,7 +98,8 @@ async function create(table, data) {
     throw new Error("Table not allowed");
   }
   try {
-    const result = await pool.query(`INSERT INTO ${table} SET ?`, data);
+    const { id, ...insertData } = data;
+    const result = await pool.query(`INSERT INTO ${table} SET ?`, [insertData]);
     return result[0];
   } catch (error) {
     throw new Error(error.message);
@@ -84,7 +118,6 @@ async function query(table, query, join) {
   if (!tablesList.includes(table)) {
     throw new Error("Table not allowed");
   }
-
   let joinQuery = "";
   if (join) {
     const key = Object.keys(join)[0];

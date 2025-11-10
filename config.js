@@ -20,8 +20,6 @@ const config = {
   redisServicesPort: process.env.REDIS_SERVICE_PORT || 3003,
   redisServicesUrl: process.env.REDIS_URL,
   redisServicePass: process.env.REDIS_PASSWORD,
-  redisServicePort: process.env.REDIS_SERVICE,
-  redisServiceHost: process.env.REDIS_SERVICE_HOST,
 };
 
 module.exports = config;

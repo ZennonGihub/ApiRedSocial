@@ -8,9 +8,8 @@ app.use(express.json());
 
 function routerApi(app) {
   const router = express.Router();
-  //app.use("/api", router);
-  //router.use(checkApiKey);
-
+  router.use(checkApiKey);
+  app.use("/api", router);
   router.use("/api/user", user);
   router.use("/api/auth", auth);
 }

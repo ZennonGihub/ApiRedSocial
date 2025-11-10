@@ -14,7 +14,8 @@ const connect = async () => {
     await client.connect();
     console.log("base de datos conectada ", client.isOpen);
   } catch (error) {
-    throw error;
+    console.log("error de conexion");
+    throw error.message;
   }
 };
 

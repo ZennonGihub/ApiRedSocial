@@ -8,8 +8,8 @@ app.use(express.json());
 app.use("/", router);
 
 console.log("Mi config", config);
-app.listen(config.mysqlService, () => {
-  console.log("servicio listo en el puerto: ", config.mysqlService);
+app.listen(config.mysqlServicePort, () => {
+  console.log("servicio listo en el puerto: ", config.mysqlServicePort);
 });
 
 module.exports = app;
