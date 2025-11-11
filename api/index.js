@@ -3,6 +3,7 @@ const express = require("express");
 const errors = require("./Response/errors");
 const cookieParser = require("cookie-parser");
 const routerApi = require("./router/index");
+const passport = require("./utils/index");
 const {
   logsErrors,
   boomErrorHandler,
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use(errors);
 
 routerApi(app);
+app.use(passport.initialize());
 app.use(logsErrors);
 app.use(boomErrorHandler);
 app.use(errorHandler);

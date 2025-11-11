@@ -1,11 +1,11 @@
 const bcrypt = require("bcrypt");
-const auth = require("../../api/controllers/auth");
-const TABLA = "user";
+const TABLA = "users";
+const TABLA_FOLLOW = "follows";
 
 module.exports = function (injectedDb) {
   let db = injectedDb;
   if (!db) {
-    db = require("../../store/remoteMysql");
+    db = require("../../store/mysql");
   }
 
   async function getFullDataBase() {
@@ -21,8 +21,10 @@ module.exports = function (injectedDb) {
 
   async function update(id, body) {
     const user = {
-      ...body,
-      id,
+      username: body.username,
+      name: body.name,
+      descripcion: body.descripcion,
+      id: id,
     };
     return db.update(TABLA, user);
   }
@@ -31,31 +33,35 @@ module.exports = function (injectedDb) {
     const user = {
       username: body.username,
       name: body.name,
+      descripcion: body.descripcion || null,
     };
-    console.log(user);
-    if (body.password || body.username) {
-      await auth.create({
-        username: user.username,
-        password: await bcrypt.hash(body.password, 10),
-      });
+    const userResult = await db.create(TABLA, user);
+    const newUserId = userResult.insertId;
+    if (body.password && body.username && body.email) {
+      const authData = {
+        user_id: newUserId,
+        email: body.email,
+        password_hash: await bcrypt.hash(body.password, 10),
+      };
+      await db.create("auth", authData);
     }
-    return db.create(TABLA, user);
+    return { id: newUserId, ...user };
   }
   async function remove(id) {
     return db.remove(TABLA, id);
   }
 
   function follow(from, to) {
-    return db.create(TABLA + "_follow", {
-      user_from: from,
-      user_to: to,
+    return db.create(TABLA_FOLLOW, {
+      follow_to: to,
+      follow_from: from,
     });
   }
   async function following(user) {
     const join = {};
-    join[TABLA] = "user_to";
-    const query = { user_from: user };
-    return await db.query(TABLA + "_follow", query, join);
+    join[TABLA] = "follow_to";
+    const query = { follow_from: user };
+    return await db.query(TABLA_FOLLOW, query, join);
   }
   return {
     getFullDataBase,

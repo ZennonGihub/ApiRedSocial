@@ -1,4 +1,5 @@
 const TABLA = "post";
+const tablaPost = "likepost";
 
 module.exports = function (injectedDb) {
   let db = injectedDb;
@@ -30,10 +31,15 @@ module.exports = function (injectedDb) {
     return db.update(TABLA, newPost);
   }
 
+  async function insertForeignKey(tablaPost, body) {
+    return db.create(tablaPost, body);
+  }
+
   return {
     list,
     remove,
     create,
     update,
+    insertForeignKey,
   };
 };

@@ -1,8 +1,8 @@
 require("dotenv").config();
-const error = require("../../Response/errors");
+const error = require("../Response/errors");
 
 const jwt = require("jsonwebtoken");
-const config = require("../../../config");
+const config = require("../../config");
 
 async function sign(data) {
   return jwt.sign(data, config.jwtsecret || "titoSoto", { expiresIn: "15m" });

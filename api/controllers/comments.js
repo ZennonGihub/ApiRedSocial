@@ -1,4 +1,5 @@
 const TABLA = "comentarios";
+const tablaLikeComentarios = "likecomentarios";
 
 module.exports = function (injectedDb) {
   let db = injectedDb;
@@ -6,20 +7,23 @@ module.exports = function (injectedDb) {
     db = require("../../store/mysql");
   }
 
-  async function getFullComments(TABLA) {
-    return db.list();
+  async function getFullComments() {
+    return db.list(TABLA);
   }
-  async function getComment(TABLA, id) {
+  async function getComment(id) {
     return db.get(TABLA, id);
   }
-  async function insertComment(TABLA, data) {
+  async function insertComment(data) {
     return db.upsert(TABLA, data);
   }
-  async function deleteComment(TABLA, id) {
+  async function deleteComment(id) {
     return db.remove(TABLA, id);
   }
-  async function updatedComment(TABLA, data) {
+  async function updatedComment(data) {
     return db.upsert(TABLA, data);
+  }
+  async function likeComment(data) {
+    return db.upsert(tablaLikeComentarios, data);
   }
   return {
     getFullComments,
@@ -27,5 +31,6 @@ module.exports = function (injectedDb) {
     insertComment,
     deleteComment,
     updatedComment,
+    likeComment,
   };
 };
