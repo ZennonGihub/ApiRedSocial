@@ -4,32 +4,32 @@
   "projectName": "api-red-social",
 
   "functions": {
-    "api/index.js": {
+    "main_api/index.js": {
       "runtime": "nodejs18.x"
     },
-    "post/index-post.js": {
+    "post/index.js": {
       "runtime": "nodejs18.x"
     }
   },
   "rewrites": [
     {
       "source": "/api/auth/:path*",
-      "destination": "/api/index.js"
+      "destination": "/main_api/index.js"
     },
     {
       "source": "/api/comments/:path*",
-      "destination": "/api/index.js"
+      "destination": "/main_api/index.js"
     },
     {
       "source": "/api/user/:path*",
-      "destination": "/api/index.js"
+      "destination": "/main_api/index.js"
     },
     {
       "source": "/api/post/:path*",
       "destination": "/post/index.js"
     },
     {
-      "source": "/api/auth/:path*",
+      "source": "/api/mysql/:path*",
       "destination": "/mysql/index.js"
     }
   ]
