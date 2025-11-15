@@ -1,5 +1,6 @@
-const TABLA = "post";
+const TABLA = "posts";
 const tablaPost = "likepost";
+const tablaEstado = "estadopost";
 
 module.exports = function (injectedDb) {
   let db = injectedDb;
@@ -15,12 +16,18 @@ module.exports = function (injectedDb) {
     return db.remove(id, TABLA);
   }
 
-  async function create(body) {
+  async function create(user, body) {
+    const resultEstado = await db.create(tablaEstado, { estado: "activo" });
+    const newEstadoId = resultEstado.insertId;
     const post = {
-      texto: body.texto,
-      user: body.user,
+      title: body.title,
+      body: body.body,
+      user_id: user.user_id,
+      estadoPost_id: newEstadoId,
     };
-    return db.create(TABLA, post);
+    const newPost = await db.create(TABLA, post);
+    const resultId = newPost.insertId;
+    return { resultId, ...post };
   }
 
   async function update(id, body) {

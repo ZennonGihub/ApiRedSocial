@@ -1,5 +1,5 @@
 const mysql = require("mysql2/promise");
-
+const boom = require("@hapi/boom");
 const config = require("./../config");
 
 const dbConfig = {
@@ -16,16 +16,16 @@ const dbConfig = {
 const pool = mysql.createPool(dbConfig);
 // Lista de tablas permitidas para no permitir inyecciones sql
 const tablesList = [
-  "user",
+  "users",
   "auth",
-  "post",
+  "posts",
   "follows",
   "comentarios",
   "estadopost",
   "likecomentarios",
   "likepost",
 ];
-const columnsPost = [
+const columnsPosts = [
   "title",
   "body",
   "estadoPost_id",
@@ -34,8 +34,8 @@ const columnsPost = [
   "updated_at",
 ];
 const columnsUser = [
+  "id",
   "username",
-  "name",
   "descripcion",
   "created_at",
   "updated_at",
@@ -68,13 +68,42 @@ async function list(table) {
 
 async function get(table, id) {
   if (!tablesList.includes(table)) {
-    throw new Error("Table not allowed");
+    boom.notFound("Table not allowed");
   }
   try {
     const result = await pool.query(`SELECT * FROM ${table} WHERE id=?`, [id]);
+    console.log(result);
     return result[0];
   } catch (error) {
-    throw new Error(error.message);
+    throw boom.badData(error.message);
+  }
+}
+
+async function getEmail(table, email) {
+  if (!tablesList.includes(table)) {
+    throw boom.notFound("Table not allowed");
+  }
+  try {
+    const [rows] = await pool.query(`SELECT * FROM ${table} WHERE email=?`, [
+      email,
+    ]);
+    return rows[0];
+  } catch (error) {
+    throw boom.badData("Error en la consulta de email");
+  }
+}
+
+async function getUserId(table, id) {
+  if (!tablesList.includes(table)) {
+    throw boom.notFound("Table not allowed");
+  }
+  try {
+    const [rows] = await pool.query(`SELECT * FROM ${table} WHERE user_id=?`, [
+      id,
+    ]);
+    return rows[0];
+  } catch (error) {
+    throw boom.badData("Error en la consulta de email");
   }
 }
 
@@ -100,6 +129,7 @@ async function create(table, data) {
   try {
     const { id, ...insertData } = data;
     const result = await pool.query(`INSERT INTO ${table} SET ?`, [insertData]);
+    console.log("Result insert MYSQL:", result);
     return result[0];
   } catch (error) {
     throw new Error(error.message);
@@ -146,8 +176,10 @@ async function query(table, query, join) {
 
 module.exports = {
   list,
+  getUserId,
   get,
   update,
+  getEmail,
   upsert,
   query,
   create,

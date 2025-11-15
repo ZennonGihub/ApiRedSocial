@@ -1,6 +1,5 @@
 require("dotenv").config();
 const error = require("../Response/errors");
-
 const jwt = require("jsonwebtoken");
 const config = require("../../config");
 

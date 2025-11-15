@@ -1,6 +1,7 @@
 const express = require("express");
 const response = require("../../api/Response/response.js");
 const controller = require("./dependencia.js");
+const passport = require("passport");
 
 const router = express.Router();
 
@@ -32,7 +33,7 @@ router.get(
   }
 );
 
-router.put(
+router.patch(
   "/",
   passport.authenticate("jwt", { session: false }),
   async (req, res, next) => {
@@ -42,6 +43,22 @@ router.put(
       response.success(req, res, post, 200);
     } catch (error) {
       next(error);
+    }
+  }
+);
+
+router.post(
+  "/crear",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const user = req.user;
+      console.log("Este es el user en post router:", user);
+      const body = req.body;
+      const post = await controller.create(user, body);
+      response.success(req, res, post, 201);
+    } catch (error) {
+      response.error(req, res, error.message, 500);
     }
   }
 );

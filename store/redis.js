@@ -1,5 +1,4 @@
 const { createClient } = require("redis");
-const { stringify } = require("yamljs");
 
 const client = createClient({
   url: process.env.REDIS_URL,

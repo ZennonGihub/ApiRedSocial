@@ -32,7 +32,6 @@ module.exports = function (injectedDb) {
   async function create(body) {
     const user = {
       username: body.username,
-      name: body.name,
       descripcion: body.descripcion || null,
     };
     const userResult = await db.create(TABLA, user);

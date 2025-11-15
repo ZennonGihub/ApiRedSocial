@@ -2,7 +2,7 @@ const express = require("express");
 const response = require("../Response/response.js");
 const controller = require("../dependencias/comments.js");
 const { checkRoles } = require("../middleware/auth.handler.js");
-
+const passport = require("passport");
 const router = express.Router();
 
 router.get(
@@ -20,13 +20,14 @@ router.get(
 );
 
 router.get(
-  "/:id",
+  "/:id/:comment",
   passport.authenticate("jwt", { session: false }),
   checkRoles(),
   async (req, res) => {
     try {
       const id = req.params.id;
-      const result = await controller.getComment(id);
+      const comment = req.params.comment;
+      const result = await controller.getComment(id, comment);
       response.success(req, res, result, 200);
     } catch (error) {
       response.error(req, res, error.message, 500);
@@ -35,13 +36,15 @@ router.get(
 );
 
 router.post(
-  "/",
+  "/:post/crear",
   passport.authenticate("jwt", { session: false }),
-  checkRoles(),
+  //checkRoles(),
   async (req, res) => {
     try {
+      const id = req.params.post;
+      const user = req.user;
       const body = req.body;
-      const newComment = await controller.insertComment(body);
+      const newComment = await controller.createComment(id, user, body);
       response.success(req, res, newComment, 201);
     } catch (error) {
       response.error(req, res, error.message, 500);

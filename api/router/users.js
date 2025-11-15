@@ -3,22 +3,18 @@ const secure = require("../middleware/secure");
 const response = require("../Response/response");
 const controller = require("../dependencias/user");
 const passport = require("passport");
+const { checkApiKey } = require("../middleware/auth.handler");
 
 const router = express.Router();
 
-router.get(
-  "/",
-  passport.authenticate("jwt", { session: false }),
-  secure(),
-  async (req, res) => {
-    try {
-      const list = await controller.list();
-      response.success(req, res, list, 200);
-    } catch (error) {
-      response.error(req, res, error.message, 500);
-    }
+router.get("/", async (req, res) => {
+  try {
+    const list = await controller.list();
+    response.success(req, res, list, 200);
+  } catch (error) {
+    response.error(req, res, error.message, 500);
   }
-);
+});
 router.get(
   "/debug",
   passport.authenticate("jwt", { session: false }),
@@ -33,20 +29,15 @@ router.get(
   }
 );
 
-router.get(
-  "/:id",
-  passport.authenticate("jwt", { session: false }),
-  secure(),
-  async (req, res) => {
-    try {
-      const id = req.params.id;
-      const user = await controller.get(id);
-      response.success(req, res, user, 200);
-    } catch (error) {
-      response.error(req, res, error.message, 500);
-    }
+router.get("/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await controller.get(id);
+    response.success(req, res, user, 200);
+  } catch (error) {
+    response.error(req, res, error.message, 500);
   }
-);
+});
 
 router.patch(
   "/:id",
@@ -64,34 +55,24 @@ router.patch(
   }
 );
 
-router.post(
-  "/",
-  passport.authenticate("jwt", { session: false }),
-  secure(),
-  async (req, res) => {
-    try {
-      const body = req.body;
-      const nuevoUser = await controller.create(body);
-      response.success(req, res, nuevoUser, 201);
-    } catch (error) {
-      response.error(req, res, error.message, 500);
-    }
+router.post("/", checkApiKey, async (req, res) => {
+  try {
+    const body = req.body;
+    const nuevoUser = await controller.create(body);
+    response.success(req, res, nuevoUser, 201);
+  } catch (error) {
+    response.error(req, res, error.message, 500);
   }
-);
+});
 
-router.get(
-  "/:id/following",
-  passport.authenticate("jwt", { session: false }),
-  secure("follow"),
-  async (req, res, next) => {
-    try {
-      const userFollowing = await controller.following(req.params.id);
-      response.success(req, res, userFollowing, 201);
-    } catch (error) {
-      next(error);
-    }
+router.get("/:id/following", async (req, res, next) => {
+  try {
+    const userFollowing = await controller.following(req.params.id);
+    response.success(req, res, userFollowing, 201);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 router.post(
   "/follow/:id",
@@ -100,9 +81,7 @@ router.post(
   async (req, res) => {
     try {
       const userFrom = req.user.sub;
-      console.log("ID THE USERFROM", userFrom);
       const userTo = req.params.id;
-      console.log("ID USER TO", userTo);
       await controller.follow(userFrom, userTo);
       response.success(req, res, null, 201);
     } catch (error) {
@@ -114,7 +93,7 @@ router.post(
 router.delete(
   "/:id",
   passport.authenticate("jwt", { session: false }),
-  secure(),
+  secure("update"),
   async (req, res) => {
     try {
       const id = req.params.id;

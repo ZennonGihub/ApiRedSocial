@@ -1,23 +1,23 @@
-const { config } = require("./../../config");
+const config = require("../../config");
+const boom = require("@hapi/boom");
 
-function checkApiKey(req, res) {
+function checkApiKey(req, res, next) {
   const apiKey = req.headers["api"];
   // Verifica que en los header de la peticion, venga la api key
   if (apiKey === config.apiKey) {
     next();
   } else {
-    throw new Error("No autorizado");
+    next(boom.unauthorized("Api key no es valida"));
   }
 }
 
 function checkRoles(...roles) {
   return (req, res, next) => {
     const user = req.user;
-    // Verifica que el rol del usuario, sea un rol permitido para la ruta
     if (roles.includes(user.role)) {
       next();
     } else {
-      throw new Error("No autorizado");
+      throw boom.unauthorized("No autorizado");
     }
   };
 }

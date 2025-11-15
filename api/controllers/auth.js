@@ -1,25 +1,24 @@
 const bcrypt = require("bcrypt");
 const auth = require("../utils/jwt");
 const TABLA = "auth";
+const boom = require("@hapi/boom");
+const config = require("dotenv");
 
 module.exports = function (injectedDb) {
   let db = injectedDb;
   if (!db) {
     db = require("../../store/mysql");
   }
-  async function login(email, password) {
-    const data = await db.query(TABLA, { email: email });
-    const comparePass = await bcrypt.compare(password, data.password);
-    console.log(comparePass);
-    if (comparePass === true) {
-      const payload = {
-        sub: data.id,
-        role: data.role,
-      };
-      return auth.sing(payload);
-    } else {
-      throw new Error(`Error en la validacion del usuario`);
+  async function login(user) {
+    console.log("Este es el user: ", user);
+    if (!user) {
+      throw boom.unauthorized();
     }
+    const payload = {
+      sub: user.user_id,
+    };
+    console.log("Payload for JWT:", payload);
+    return auth.sign(payload, config.jwtsecret, { expiresIn: "1d" });
   }
 
   async function create(data) {
@@ -27,16 +26,20 @@ module.exports = function (injectedDb) {
       email: data.email,
       password: data.password,
     };
-    console.log(TABLA, authData);
     return db.create(TABLA, authData);
   }
 
-  async function getEmail(email) {
-    return db.get(TABLA, id);
+  async function getByEmail(email) {
+    return db.getEmail(TABLA, email);
+  }
+  async function getUser(id) {
+    console.log("Id funcion getUser: ", id);
+    return db.getUserId(TABLA, id);
   }
   return {
     create,
     login,
-    getEmail,
+    getByEmail,
+    getUser,
   };
 };

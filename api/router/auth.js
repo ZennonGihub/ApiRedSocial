@@ -10,8 +10,8 @@ router.post(
   passport.authenticate("local", { session: false }),
   async (req, res) => {
     try {
-      const body = req.body;
-      const userToken = await controller.login(body.username, body.password);
+      const user = req.user;
+      const userToken = await controller.login(user);
       response.success(req, res, userToken, 201);
     } catch (error) {
       response.error(req, res, error.message, 500);

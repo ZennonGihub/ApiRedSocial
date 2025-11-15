@@ -1,7 +1,7 @@
 const { Strategy } = require("passport-local");
 const boom = require("@hapi/boom");
 const bcrypt = require("bcrypt");
-const controller = require("../../controllers/auth");
+const controller = require("../../../store/mysql");
 
 const localStrategy = new Strategy(
   {
@@ -10,15 +10,17 @@ const localStrategy = new Strategy(
   },
   async (email, password, done) => {
     try {
-      const user = await controller.getuserByEmail(email);
+      const user = await controller.getEmail("auth", email);
+      console.log("User found:", user);
       if (!user) {
-        done(boom.unauthorized(), false);
+        return done(boom.unauthorized(), false);
       }
-      const isMatch = await bcrypt.compare(password, user.password);
+      console.log("Comparing passwords", password);
+      const isMatch = await bcrypt.compare(password, user.password_hash);
       if (!isMatch) {
-        done(boom.unauthorized(), false);
+        return done(boom.unauthorized(), false);
       }
-      delete user.password;
+      delete user.password_hash;
       done(null, user);
     } catch (err) {
       done(err, false);
