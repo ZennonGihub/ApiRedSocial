@@ -17,12 +17,20 @@
       "destination": "/api/index.js"
     },
     {
+      "source": "/api/comments/:path*",
+      "destination": "/api/index.js"
+    },
+    {
       "source": "/api/user/:path*",
       "destination": "/api/index.js"
     },
     {
       "source": "/api/post/:path*",
-      "destination": "/post/index-post.js"
+      "destination": "/post/index.js"
+    },
+    {
+      "source": "/api/auth/:path*",
+      "destination": "/mysql/index.js"
     }
   ]
 }
