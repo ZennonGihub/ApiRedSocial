@@ -1,0 +1,28 @@
+{
+  "projectId": "prj_kL1emTw7mFQjuwE9REIXPfzPRrMf",
+  "orgId": "team_nfVlELaBqrCmu615QTvL4AfS",
+  "projectName": "api-red-social",
+
+  "functions": {
+    "api/index.js": {
+      "runtime": "nodejs18.x"
+    },
+    "post/index-post.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/auth/:path*",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/api/user/:path*",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/api/post/:path*",
+      "destination": "/post/index-post.js"
+    }
+  ]
+}

@@ -23,8 +23,8 @@ app.use(passport.initialize());
 app.use(logsErrors);
 app.use(boomErrorHandler);
 app.use(errorHandler);
-app.listen(config.postPort, () => {
+/*app.listen(config.postPort, () => {
   console.log("Microservicio utilizando el puerto: ", config.postPort);
-});
+});*/
 
 module.exports = app;
