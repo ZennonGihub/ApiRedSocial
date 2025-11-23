@@ -1,7 +1,8 @@
 const express = require("express");
-const user = require("./users");
-const auth = require("../modules/auth/ruta");
-const comments = require("./comments");
+const user = require("../modules/users/index.js");
+const auth = require("../modules/auth/index.js");
+const post = require("../modules/post/index.js");
+const comments = require("../modules/comments/ruta");
 const { checkApiKey } = require("../middleware/auth.handler");
 
 const app = express();
@@ -12,6 +13,7 @@ function routerApi(app) {
   router.use(checkApiKey);
   app.use("/api/v1", router);
   router.use("/user", user);
+  router.use("/post", post);
   router.use("/comments", comments);
   router.use("/auth", auth);
 }

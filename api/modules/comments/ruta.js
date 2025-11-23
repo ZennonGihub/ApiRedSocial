@@ -1,6 +1,6 @@
 const express = require("express");
 const response = require("../../Response/response.js");
-const controller = require("../dependencias/comments.js");
+const controller = require("./dependencia.js");
 const { checkRoles } = require("../../middleware/auth.handler.js");
 const passport = require("passport");
 const router = express.Router();
@@ -8,7 +8,6 @@ const router = express.Router();
 router.get(
   "/",
   passport.authenticate("jwt", { session: false }),
-  checkRoles(),
   async (req, res) => {
     try {
       const list = await controller.getFullComments();
@@ -20,12 +19,11 @@ router.get(
 );
 
 router.get(
-  "/:id/:comment",
+  "/:idPost/:comment",
   passport.authenticate("jwt", { session: false }),
-  checkRoles(),
   async (req, res) => {
     try {
-      const id = req.params.id;
+      const id = req.params.idPost;
       const comment = req.params.comment;
       const result = await controller.getComment(id, comment);
       response.success(req, res, result, 200);
@@ -38,7 +36,6 @@ router.get(
 router.post(
   "/:post/crear",
   passport.authenticate("jwt", { session: false }),
-  //checkRoles(),
   async (req, res) => {
     try {
       const id = req.params.post;
@@ -53,14 +50,14 @@ router.post(
 );
 
 router.delete(
-  "/:id",
+  "/:idPost/:comment",
   passport.authenticate("jwt", { session: false }),
-  checkRoles(),
   async (req, res) => {
     try {
-      const id = req.params.id;
-      const deletedComment = await controller.deleteComment(id);
-      response.success(req, res, deletedComment, 200);
+      const id = req.params.idPost;
+      const comment = req.params.comment;
+      const result = await controller.deleteComment(id, comment);
+      response.success(req, res, result, 200);
     } catch (error) {
       response.error(req, res, error.message, 500);
     }
@@ -70,9 +67,9 @@ router.delete(
 router.patch(
   "/:id",
   passport.authenticate("jwt", { session: false }),
-  checkRoles(),
   async (req, res) => {
     try {
+      const id = req.params.id;
       const body = req.body;
       const updatedComment = await controller.updatedComment(id, body);
       response.success(req, res, updatedComment, 200);
@@ -83,13 +80,13 @@ router.patch(
 );
 
 router.post(
-  "/:id/like",
+  "/:user/:id/like",
   passport.authenticate("jwt", { session: false }),
-  checkRoles(),
   async (req, res) => {
     try {
-      const id = req.params.id;
-      const likedComment = await controller.likeComment(id, req.body);
+      const idcomentario = req.params.id;
+      const id = req.user;
+      const likedComment = await controller.likeComment(id, idcomentario);
       response.success(req, res, likedComment, 201);
     } catch (error) {
       response.error(req, res, error.message, 500);

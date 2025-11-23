@@ -4,16 +4,12 @@ const client = createClient({
   url: process.env.REDIS_URL,
 });
 
-client.on("error", (err) => {
-  console.log("Redis Client Error", err);
-});
+client.on("error", (err) => {});
 
 const connect = async () => {
   try {
     await client.connect();
-    console.log("base de datos conectada ", client.isOpen);
   } catch (error) {
-    console.log("error de conexion");
     throw error.message;
   }
 };

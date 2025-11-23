@@ -1,5 +1,5 @@
 const express = require("express");
-const response = require("../../api/Response/response.js");
+const response = require("../../../Response/response.js");
 const controller = require("./dependencia.js");
 const passport = require("passport");
 
@@ -11,7 +11,6 @@ router.get(
   async (req, res, next) => {
     try {
       const lista = await controller.list();
-      console.log("Esto esta en let lista: ", lista);
       response.success(req, res, lista, 200);
     } catch (error) {
       next(error);
@@ -25,7 +24,7 @@ router.get(
   async (req, res, next) => {
     try {
       const id = req.params.id;
-      const result = await controller.get(id);
+      const result = await controller.getPost(id);
       response.success(req, res, result, 200);
     } catch (error) {
       response.error(req, res, error.message, 500);
@@ -34,12 +33,13 @@ router.get(
 );
 
 router.patch(
-  "/",
+  "/:id",
   passport.authenticate("jwt", { session: false }),
   async (req, res, next) => {
     try {
+      const id = req.params.id;
       const body = req.body;
-      const post = await controller.update(body, body.id);
+      const post = await controller.update(id, body);
       response.success(req, res, post, 200);
     } catch (error) {
       next(error);
@@ -53,10 +53,23 @@ router.post(
   async (req, res) => {
     try {
       const user = req.user;
-      console.log("Este es el user en post router:", user);
       const body = req.body;
       const post = await controller.create(user, body);
       response.success(req, res, post, 201);
+    } catch (error) {
+      response.error(req, res, error.message, 500);
+    }
+  }
+);
+
+router.delete(
+  "/:id",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const id = req.params.id;
+      const postRemoved = await controller.remove(id);
+      response.success(req, res, postRemoved, 201);
     } catch (error) {
       response.error(req, res, error.message, 500);
     }

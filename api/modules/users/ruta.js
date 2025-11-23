@@ -1,7 +1,7 @@
 const express = require("express");
 const secure = require("../../middleware/secure");
 const response = require("../../Response/response");
-const controller = require("../dependencias/user");
+const controller = require("./dependencia");
 const passport = require("passport");
 const { checkApiKey } = require("../../middleware/auth.handler");
 

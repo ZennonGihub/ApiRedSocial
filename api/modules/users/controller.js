@@ -1,4 +1,6 @@
-const bcrypt = require("bcrypt");
+const crtl = require("../auth/dependencia");
+const boom = require("@hapi/boom");
+
 const TABLA = "users";
 const TABLA_FOLLOW = "follows";
 
@@ -8,15 +10,20 @@ module.exports = function (injectedDb) {
     db = require("../../../store/mysql");
   }
 
-  async function getFullDataBase() {
-    return db.getFullDb();
-  }
   async function list() {
-    return db.list(TABLA) || [];
+    const result = await db.list(TABLA);
+    if (!result) {
+      throw boom.notFound("Usuarios no encontrados");
+    }
+    return result[0];
   }
 
   async function get(id) {
-    return db.get(TABLA, id);
+    const result = await db.get(TABLA, id);
+    if (!result) {
+      throw boom.notFound("Usuario no encontrado");
+    }
+    return result[0];
   }
 
   async function update(id, body) {
@@ -36,14 +43,12 @@ module.exports = function (injectedDb) {
     };
     const userResult = await db.create(TABLA, user);
     const newUserId = userResult.insertId;
-    if (body.password && body.username && body.email) {
-      const authData = {
-        user_id: newUserId,
-        email: body.email,
-        password_hash: await bcrypt.hash(body.password, 10),
-      };
-      await db.create("auth", authData);
-    }
+    const authData = {
+      user_id: newUserId,
+      email: body.email,
+      password_hash: body.password,
+    };
+    await crtl.createAuth(authData);
     return { id: newUserId, ...user };
   }
   async function remove(id) {
@@ -63,7 +68,6 @@ module.exports = function (injectedDb) {
     return await db.query(TABLA_FOLLOW, query, join);
   }
   return {
-    getFullDataBase,
     list,
     get,
     update,

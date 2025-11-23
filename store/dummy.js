@@ -65,7 +65,6 @@ async function query(table, q) {
   const keys = Object.keys(q);
   const key = keys[0];
   let newId = tabla.filter((item) => item[key] == q[key]) || null;
-  console.log("Este es mi usuario: ", newId);
   return newId;
 }
 

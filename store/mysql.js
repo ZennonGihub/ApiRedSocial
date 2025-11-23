@@ -68,14 +68,13 @@ async function list(table) {
 
 async function get(table, id) {
   if (!tablesList.includes(table)) {
-    boom.notFound("Table not allowed");
+    throw boom.notFound("Table not allowed");
   }
   try {
     const result = await pool.query(`SELECT * FROM ${table} WHERE id=?`, [id]);
-    console.log(result);
     return result[0];
   } catch (error) {
-    throw boom.badData(error.message);
+    throw boom.badData("Error en la consulta");
   }
 }
 
@@ -109,7 +108,7 @@ async function getUserId(table, id) {
 
 async function update(table, data) {
   if (!tablesList.includes(table)) {
-    throw new Error("Table not allowed");
+    throw boom.badData("Table not allowed");
   }
   try {
     const { id, ...updateData } = data;
@@ -129,7 +128,6 @@ async function create(table, data) {
   try {
     const { id, ...insertData } = data;
     const result = await pool.query(`INSERT INTO ${table} SET ?`, [insertData]);
-    console.log("Result insert MYSQL:", result);
     return result[0];
   } catch (error) {
     throw new Error(error.message);
@@ -141,6 +139,34 @@ function upsert(table, data) {
     return update(table, data);
   } else {
     return create(table, data);
+  }
+}
+
+async function remove(table, id) {
+  if (!tablesList.includes(table)) {
+    throw boom.badData("Table not allowed");
+  }
+  try {
+    console.log("El id en mysql remove es:", id);
+    const result = await pool.query(`DELETE FROM ${table} WHERE id=?`, [id]);
+    return result[0];
+  } catch (error) {
+    throw boom.badData("Error en la consulta");
+  }
+}
+
+async function getCommentPost(table, idPost, idComment) {
+  if (!tablesList.includes(table)) {
+    throw boom.notFound("Table not allowed");
+  }
+  try {
+    const [rows] = await pool.query(
+      `SELECT * FROM ${table} WHERE post_id=? AND id=?`,
+      [idPost, idComment]
+    );
+    return rows;
+  } catch (error) {
+    throw boom.badData("Error en la consulta de email");
   }
 }
 
@@ -178,9 +204,11 @@ module.exports = {
   list,
   getUserId,
   get,
+  remove,
   update,
   getEmail,
   upsert,
   query,
+  getCommentPost,
   create,
 };
