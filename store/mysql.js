@@ -144,6 +144,23 @@ function upsert(table, data) {
   }
 }
 
+// Realiza consultas para comentarios
+
+async function getCommentPost(table, idPost, idComment) {
+  if (!tablesList.includes(table)) {
+    throw boom.notFound("Table not allowed");
+  }
+  try {
+    const [rows] = await pool.query(
+      `SELECT * FROM ${table} WHERE post_id=? AND id=?`,
+      [idPost, idComment]
+    );
+    return rows[0];
+  } catch (error) {
+    throw boom.badData("Error en la consulta de email");
+  }
+}
+
 async function query(table, query, join) {
   if (!tablesList.includes(table)) {
     throw new Error("Table not allowed");
@@ -182,5 +199,6 @@ module.exports = {
   getEmail,
   upsert,
   query,
+  getCommentPost,
   create,
 };

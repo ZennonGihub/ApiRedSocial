@@ -12,6 +12,10 @@ module.exports = function (injectedDb) {
     return db.list(TABLA);
   }
 
+  async function getPost(id) {
+    return db.get(TABLA, id);
+  }
+
   async function remove(id) {
     return db.remove(id, TABLA);
   }
@@ -44,6 +48,7 @@ module.exports = function (injectedDb) {
 
   return {
     list,
+    getPost,
     remove,
     create,
     update,

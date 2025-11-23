@@ -1,4 +1,5 @@
-const bcrypt = require("bcrypt");
+const crtl = require("../auth/dependencia");
+
 const TABLA = "users";
 const TABLA_FOLLOW = "follows";
 
@@ -36,14 +37,12 @@ module.exports = function (injectedDb) {
     };
     const userResult = await db.create(TABLA, user);
     const newUserId = userResult.insertId;
-    if (body.password && body.username && body.email) {
-      const authData = {
-        user_id: newUserId,
-        email: body.email,
-        password_hash: await bcrypt.hash(body.password, 10),
-      };
-      await db.create("auth", authData);
-    }
+    const authData = {
+      user_id: newUserId,
+      email: body.email,
+      password_hash: body.password,
+    };
+    await crtl.createAuth(authData);
     return { id: newUserId, ...user };
   }
   async function remove(id) {

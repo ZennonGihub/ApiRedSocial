@@ -1,7 +1,9 @@
+const ctrl = require("../post/src/dependencia");
 const TABLA = "comentarios";
-const tablaPost = "posts";
 const tablaLikeComentarios = "likecomentarios";
 const boom = require("@hapi/boom");
+
+const table = ["likecomentarios"];
 
 module.exports = function (injectedDb) {
   let db = injectedDb;
@@ -13,10 +15,11 @@ module.exports = function (injectedDb) {
     return db.list(TABLA);
   }
   async function getComment(id, commentId) {
-    const post = await db.get(tablaPost, id);
+    const post = await ctrl.getPost(tablaPost, id);
     if (!post) {
       throw boom.notFound("Post not found");
     }
+    return db.getCommentPost(TABLA, id, commentId);
   }
   async function createComment(id, user, data) {
     const comment = {
@@ -24,7 +27,6 @@ module.exports = function (injectedDb) {
       post_id: id,
       user_id: user.user_id,
     };
-    console.log("Este es el comentario: ", comment);
     const newComment = await db.create(TABLA, comment);
     const resultId = newComment.insertId;
     return { id: resultId, ...comment };
@@ -35,8 +37,20 @@ module.exports = function (injectedDb) {
   async function updatedComment(data) {
     return db.update(TABLA, data);
   }
-  async function likeComment(data) {
-    return db.upsert(tablaLikeComentarios, data);
+  async function likeComment(user_id, idcomentario) {
+    if (!tablesList.includes(table)) {
+      throw boom.badData("Table not allowed");
+    }
+    try {
+      const { user_id, idcomentario } = data;
+      const result = await pool.query(`INSERT INTO ${table} SET ?`, [
+        user_id,
+        idcomentario,
+      ]);
+      return result[0];
+    } catch (error) {
+      throw boom.badRequest(error.message);
+    }
   }
   return {
     getFullComments,

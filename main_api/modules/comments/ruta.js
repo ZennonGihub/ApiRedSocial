@@ -38,7 +38,7 @@ router.get(
 router.post(
   "/:post/crear",
   passport.authenticate("jwt", { session: false }),
-  //checkRoles(),
+  checkRoles(),
   async (req, res) => {
     try {
       const id = req.params.post;
@@ -83,13 +83,14 @@ router.patch(
 );
 
 router.post(
-  "/:id/like",
+  "/:user/:id/like",
   passport.authenticate("jwt", { session: false }),
   checkRoles(),
   async (req, res) => {
     try {
-      const id = req.params.id;
-      const likedComment = await controller.likeComment(id, req.body);
+      const idcomentario = req.params.id;
+      const id = req.user;
+      const likedComment = await controller.likeComment(id, idcomentario);
       response.success(req, res, likedComment, 201);
     } catch (error) {
       response.error(req, res, error.message, 500);
