@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const auth = require("../utils/jwt");
+const auth = require("../../utils/jwt");
 const TABLA = "auth";
 const boom = require("@hapi/boom");
 const config = require("dotenv");
@@ -7,7 +7,7 @@ const config = require("dotenv");
 module.exports = function (injectedDb) {
   let db = injectedDb;
   if (!db) {
-    db = require("../../store/mysql");
+    db = require("../../../store/mysql");
   }
   async function login(user) {
     console.log("Este es el user: ", user);

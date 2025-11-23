@@ -5,7 +5,7 @@ const TABLA_FOLLOW = "follows";
 module.exports = function (injectedDb) {
   let db = injectedDb;
   if (!db) {
-    db = require("../../store/mysql");
+    db = require("../../../store/mysql");
   }
 
   async function getFullDataBase() {

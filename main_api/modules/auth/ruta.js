@@ -1,6 +1,6 @@
 const express = require("express");
-const response = require("../Response/response.js");
-const controller = require("../dependencias/auth.js");
+const response = require("../../Response/response.js");
+const controller = require("./dependencia.js");
 const passport = require("passport");
 
 const router = express.Router();

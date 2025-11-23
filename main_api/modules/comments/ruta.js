@@ -1,7 +1,7 @@
 const express = require("express");
-const response = require("../Response/response.js");
+const response = require("../../Response/response.js");
 const controller = require("../dependencias/comments.js");
-const { checkRoles } = require("../middleware/auth.handler.js");
+const { checkRoles } = require("../../middleware/auth.handler.js");
 const passport = require("passport");
 const router = express.Router();
 

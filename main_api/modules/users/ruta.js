@@ -1,9 +1,9 @@
 const express = require("express");
-const secure = require("../middleware/secure");
-const response = require("../Response/response");
+const secure = require("../../middleware/secure");
+const response = require("../../Response/response");
 const controller = require("../dependencias/user");
 const passport = require("passport");
-const { checkApiKey } = require("../middleware/auth.handler");
+const { checkApiKey } = require("../../middleware/auth.handler");
 
 const router = express.Router();
 
