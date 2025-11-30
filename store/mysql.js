@@ -68,14 +68,13 @@ async function list(table) {
 
 async function get(table, id) {
   if (!tablesList.includes(table)) {
-    boom.notFound("Table not allowed");
+    throw boom.notFound("Table not allowed");
   }
   try {
     const result = await pool.query(`SELECT * FROM ${table} WHERE id=?`, [id]);
-    console.log(result);
     return result[0];
   } catch (error) {
-    throw boom.badData(error.message);
+    throw boom.badData("Error en la consulta");
   }
 }
 
@@ -129,7 +128,6 @@ async function create(table, data) {
   try {
     const { id, ...insertData } = data;
     const result = await pool.query(`INSERT INTO ${table} SET ?`, [insertData]);
-    console.log("Result insert MYSQL:", result);
     return result[0];
   } catch (error) {
     throw new Error(error.message);
@@ -143,8 +141,6 @@ function upsert(table, data) {
     return create(table, data);
   }
 }
-
-// Realiza consultas para comentarios
 
 async function getCommentPost(table, idPost, idComment) {
   if (!tablesList.includes(table)) {

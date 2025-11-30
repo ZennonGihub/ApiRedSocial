@@ -11,14 +11,12 @@ const localStrategy = new Strategy(
   async (email, password, done) => {
     try {
       const user = await controller.getEmail("auth", email);
-      console.log("User found:", user);
       if (!user) {
         return done(boom.unauthorized(), false);
       }
-      console.log("Comparing passwords", password);
       const isMatch = await bcrypt.compare(password, user.password_hash);
       if (!isMatch) {
-        return done(boom.unauthorized(), false);
+        return done(null, false);
       }
       delete user.password_hash;
       done(null, user);

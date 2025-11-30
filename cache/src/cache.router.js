@@ -8,7 +8,6 @@ router.get("/:table", async (req, res, next) => {
   try {
     const table = req.params.table;
     const lista = await store.get(table);
-    console.log("Esto esta en let lista: ", lista);
     response.success(req, res, lista, 200);
   } catch (error) {
     next(error);
@@ -20,7 +19,6 @@ router.get("/:table/:id", async (req, res, next) => {
     const id = req.params.id;
     const table = req.params.table;
     const lista = await store.getId(table, id);
-    console.log("Esto esta en let lista: ", lista);
     response.success(req, res, lista, 200);
   } catch (error) {
     next(error);

@@ -1,6 +1,6 @@
 const { Strategy, ExtractJwt } = require("passport-jwt");
 const boom = require("@hapi/boom");
-const controller = require("../../controllers/auth")();
+const controller = require("../../modules/auth/controller")();
 const config = require("../../../config");
 
 const options = {
@@ -9,10 +9,9 @@ const options = {
 };
 const jwtStrategy = new Strategy(options, async (payload, done) => {
   try {
-    console.log("JWT payload received:", payload);
     const user = await controller.getUser(payload.sub);
     if (!user) {
-      return done(boom.unauthorized(), false);
+      return done(null, false);
     }
     done(null, user);
   } catch (err) {

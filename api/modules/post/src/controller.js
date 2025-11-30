@@ -9,15 +9,27 @@ module.exports = function (injectedDb) {
   }
 
   async function list() {
-    return db.list(TABLA);
+    const result = await db.list(TABLA);
+    if (!result) {
+      throw boom.notFound("No se encontraron posts");
+    }
+    return result;
   }
 
   async function getPost(id) {
-    return db.get(TABLA, id);
+    const result = await db.get(TABLA, id);
+    if (!result) {
+      throw boom.notFound("No se encontro el post");
+    }
+    return result;
   }
 
   async function remove(id) {
-    return db.remove(id, TABLA);
+    const result = await db.remove(TABLA, id);
+    if (!result) {
+      throw boom.notFound("No se pudo eliminar el post");
+    }
+    return result;
   }
 
   async function create(user, body) {
