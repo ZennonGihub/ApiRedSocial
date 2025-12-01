@@ -17,19 +17,21 @@ const app = express();
 app.use(cookieParser());
 app.use(express.json());
 
-app.use(errors);
-
-routerApi(app);
 app.use(passport.initialize());
-app.use(logsErrors);
-app.use(boomErrorHandler);
-app.use(errorHandler);
 
 app.get("/", (req, res) => {
   res.send("Api funcionando de manera exitosa");
+  console.log("Api funcionando de manera exitosa");
 });
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+routerApi(app);
+
+app.use(logsErrors);
+app.use(boomErrorHandler);
+app.use(errorHandler);
+app.use(errors);
 
 /*
 app.listen(3000, () => {
