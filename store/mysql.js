@@ -108,7 +108,7 @@ async function getUserId(table, id) {
 
 async function update(table, data) {
   if (!tablesList.includes(table)) {
-    throw new Error("Table not allowed");
+    throw boom.badData("Table not allowed");
   }
   try {
     const { id, ...updateData } = data;
@@ -142,6 +142,19 @@ function upsert(table, data) {
   }
 }
 
+async function remove(table, id) {
+  if (!tablesList.includes(table)) {
+    throw boom.badData("Table not allowed");
+  }
+  try {
+    console.log("El id en mysql remove es:", id);
+    const result = await pool.query(`DELETE FROM ${table} WHERE id=?`, [id]);
+    return result[0];
+  } catch (error) {
+    throw boom.badData("Error en la consulta");
+  }
+}
+
 async function getCommentPost(table, idPost, idComment) {
   if (!tablesList.includes(table)) {
     throw boom.notFound("Table not allowed");
@@ -151,7 +164,7 @@ async function getCommentPost(table, idPost, idComment) {
       `SELECT * FROM ${table} WHERE post_id=? AND id=?`,
       [idPost, idComment]
     );
-    return rows[0];
+    return rows;
   } catch (error) {
     throw boom.badData("Error en la consulta de email");
   }
@@ -191,6 +204,7 @@ module.exports = {
   list,
   getUserId,
   get,
+  remove,
   update,
   getEmail,
   upsert,

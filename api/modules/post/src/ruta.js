@@ -33,12 +33,13 @@ router.get(
 );
 
 router.patch(
-  "/",
+  "/:id",
   passport.authenticate("jwt", { session: false }),
   async (req, res, next) => {
     try {
+      const id = req.params.id;
       const body = req.body;
-      const post = await controller.update(body, body.id);
+      const post = await controller.update(id, body);
       response.success(req, res, post, 200);
     } catch (error) {
       next(error);
@@ -55,6 +56,20 @@ router.post(
       const body = req.body;
       const post = await controller.create(user, body);
       response.success(req, res, post, 201);
+    } catch (error) {
+      response.error(req, res, error.message, 500);
+    }
+  }
+);
+
+router.delete(
+  "/:id",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const id = req.params.id;
+      const postRemoved = await controller.remove(id);
+      response.success(req, res, postRemoved, 201);
     } catch (error) {
       response.error(req, res, error.message, 500);
     }

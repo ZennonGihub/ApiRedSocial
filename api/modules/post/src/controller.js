@@ -47,6 +47,9 @@ module.exports = function (injectedDb) {
   }
 
   async function update(id, body) {
+    if (!id || !body) {
+      throw boom.badRequest("ID y body son requeridos para actualizar el post");
+    }
     const newPost = {
       ...body,
       id,

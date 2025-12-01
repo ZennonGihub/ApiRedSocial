@@ -1,4 +1,5 @@
 const crtl = require("../auth/dependencia");
+const boom = require("@hapi/boom");
 
 const TABLA = "users";
 const TABLA_FOLLOW = "follows";
@@ -9,15 +10,20 @@ module.exports = function (injectedDb) {
     db = require("../../../store/mysql");
   }
 
-  async function getFullDataBase() {
-    return db.getFullDb();
-  }
   async function list() {
-    return db.list(TABLA) || [];
+    const result = await db.list(TABLA);
+    if (!result) {
+      throw boom.notFound("Usuarios no encontrados");
+    }
+    return result[0];
   }
 
   async function get(id) {
-    return db.get(TABLA, id);
+    const result = await db.get(TABLA, id);
+    if (!result) {
+      throw boom.notFound("Usuario no encontrado");
+    }
+    return result[0];
   }
 
   async function update(id, body) {
@@ -62,7 +68,6 @@ module.exports = function (injectedDb) {
     return await db.query(TABLA_FOLLOW, query, join);
   }
   return {
-    getFullDataBase,
     list,
     get,
     update,

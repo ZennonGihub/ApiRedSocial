@@ -2,6 +2,7 @@ const ctrl = require("../post/src/dependencia");
 const TABLA = "comentarios";
 const tablaLikeComentarios = "likecomentarios";
 const boom = require("@hapi/boom");
+const tablaPost = "posts";
 
 const table = ["likecomentarios"];
 
@@ -12,14 +13,25 @@ module.exports = function (injectedDb) {
   }
 
   async function getFullComments() {
-    return db.list(TABLA);
+    {
+      const result = await db.list(TABLA);
+      console.log("El resultado de getFullComments es:", result);
+      if (!result) {
+        throw boom.notFound("Comentarios no encontrados");
+      }
+    }
+    return result;
   }
   async function getComment(id, commentId) {
     const post = await ctrl.getPost(tablaPost, id);
     if (!post) {
-      throw boom.notFound("Post not found");
+      throw boom.notFound("Post no encontrado");
     }
-    return db.getCommentPost(TABLA, id, commentId);
+    const result = await db.getCommentPost(TABLA, id, commentId);
+    if (!result) {
+      throw boom.notFound("Comentario no encontrado");
+    }
+    return result[0];
   }
   async function createComment(id, user, data) {
     const comment = {
@@ -31,13 +43,26 @@ module.exports = function (injectedDb) {
     const resultId = newComment.insertId;
     return { id: resultId, ...comment };
   }
-  async function deleteComment(id) {
-    return db.remove(TABLA, id);
+  async function deleteComment(id, commentId) {
+    const post = await ctrl.getPost(tablaPost, id);
+    if (!post) {
+      throw boom.notFound("Post no encontrado");
+    }
+    const result = await db.getCommentPost(TABLA, id, commentId);
+    if (!result) {
+      throw boom.notFound("Comentario no encontrado");
+    }
+    const deletedComment = await db.remove(TABLA, result[0]);
+    return result[0];
   }
   async function updatedComment(data) {
-    return db.update(TABLA, data);
+    if (!data) {
+      throw boom.badRequest("No viene informacion");
+    }
+    const result = await db.update(TABLA, data);
+    return result[0];
   }
-  async function likeComment(user_id, idcomentario) {
+  async function likeComment(data) {
     if (!tablesList.includes(table)) {
       throw boom.badData("Table not allowed");
     }
