@@ -25,33 +25,35 @@ const tablesList = [
   "comment_likes",
   "post_likes",
 ];
+
 const columnsPosts = [
   "title",
   "body",
-  "estadoPost_id",
+  "post_state_id",
   "user_id",
   "created_at",
   "updated_at",
 ];
+
 const columnsUser = [
   "id",
   "username",
-  "descripcion",
+  "description",
   "created_at",
   "updated_at",
 ];
+
 const columnsAuth = ["user_id", "password_hash", "email", "updated_at"];
+
 const columnsUserFollow = ["follow_to", "follow_from"];
-const columnsComentarios = [
-  "id",
-  "comentario",
-  "user_id",
-  "post_id",
-  "created_at",
-];
-const columnsEstadoPost = ["id", "estado"];
-const columnsLikePost = ["user_id", "post_id"];
-const columnsLikeComentarios = ["user_id", "comentario_id"];
+
+const columnsComments = ["id", "content", "user_id", "post_id", "created_at"];
+
+const columnsPostStates = ["id", "name"];
+
+const columnsPostLikes = ["user_id", "post_id"];
+
+const columnsCommentLikes = ["user_id", "comment_id"];
 
 async function list(table) {
   if (!tablesList.includes(table)) {

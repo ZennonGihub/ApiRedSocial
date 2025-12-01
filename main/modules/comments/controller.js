@@ -1,10 +1,10 @@
 const ctrl = require("../post/src/dependencia");
-const TABLA = "comentarios";
-const tablaLikeComentarios = "likecomentarios";
+const TABLA = "comments";
+const tablaLikeComentarios = "comment_likes";
 const boom = require("@hapi/boom");
 const tablaPost = "posts";
 
-const table = ["likecomentarios"];
+const table = ["post_likes"];
 
 module.exports = function (injectedDb) {
   let db = injectedDb;

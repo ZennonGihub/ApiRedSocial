@@ -1,6 +1,6 @@
 const TABLA = "posts";
-const tablaPost = "likepost";
-const tablaEstado = "estadopost";
+const tablaPost = "post_likes";
+const tablaEstado = "post_states";
 
 module.exports = function (injectedDb) {
   let db = injectedDb;
