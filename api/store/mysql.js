@@ -1,6 +1,6 @@
 const mysql = require("mysql2/promise");
 const boom = require("@hapi/boom");
-const config = require("./../config");
+const config = require("../../config");
 
 const dbConfig = {
   host: config.host,

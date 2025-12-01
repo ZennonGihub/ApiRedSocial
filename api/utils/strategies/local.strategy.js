@@ -1,7 +1,7 @@
 const { Strategy } = require("passport-local");
 const boom = require("@hapi/boom");
 const bcrypt = require("bcrypt");
-const controller = require("../../../store/mysql");
+const controller = require("../../store/mysql");
 
 const localStrategy = new Strategy(
   {
