@@ -10,7 +10,6 @@ app.use(express.json());
 
 function routerApi(app) {
   const router = express.Router();
-  router.use(checkApiKey);
   app.use("/api/v1", router);
   router.use("/user", user);
   router.use("/post", post);
