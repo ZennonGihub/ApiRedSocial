@@ -1,12 +1,13 @@
-# 🚀 API Red Social 🚀
+
+# 🚀 API Red Social 🚀  
 
 API RESTful completa para una red social, diseñada con una arquitectura modular y escalable en Node.js. El sistema permite la gestión integral de usuarios, publicaciones, sistema de seguidores, interacciones y seguridad mediante JWT y API Keys.
 
-## Credenciales para Reclutadores
+##  Credenciales para Reclutadores 
 
-Para probar los endpoints protegidos, puedes usar este
+Para probar los endpoints protegidos, puedes usar este 
 | Usuario | Contraseña |
-:---: | :---: |
+|:---:    | :---: |
 | `dev_prueba` | `123456` |
 
 📝 Para probar la seguridad en Swagger
@@ -21,7 +22,7 @@ Pega el token y dale a Authorize.
 
 Luego en apiKey, coloquen: "123" y apretar Authorize
 
-Ahora el candado estará cerrado 🔒 y y podrás usar todas las funciones
+Ahora el candado estará cerrado 🔒 y y podrás usar todas las funciones 
 
 ## 🏗️ Arquitectura y Diseño
 
@@ -41,24 +42,68 @@ Diagrama Entidad-Relación (ERD)
 
 La base de datos está normalizada y diseñada para integridad referencial con eliminación en cascada
 
+## Tecnologias
+
+**Lenguaje y Base de Datos:**
+* **Node.js & Express:** Arquitectura RESTful.
+* **MySQL:** Base de datos relacional principal.
+* **Redis:** Base de datos en memoria utilizada para **Caching** y reducción de latencia en consultas frecuentes.
+
+**Librerías:**
+
+**Seguridad y Autenticación:**
+* 👮 **Passport.js:** Middleware de autenticación robusto (Estrategia Local/JWT).
+* 🔑 **jsonwebtoken (JWT):** Manejo de sesiones stateless.
+* 🔐 **bcryptjs:** Encriptación segura de contraseñas.
+* 🛡️ **Joi:** Validación estricta de esquemas de datos.
+
+**Utilidades:**
+* 💥 **Boom:** Manejo de errores HTTP amigables y estandarizados.
+* 📄 **swagger-ui-express:** Documentación visual de la API.
+* 🌐 **cors:** Gestión de políticas de acceso cruzado.
+* ⚙️ **dotenv:** Configuración de entorno segura.
 ## ⚙️ Instalación y Configuración Local
 
+### (Preerequisitos: Tener redis)
+
+> ⚠️ **Nota Importante:** Si solo deseas probar la API, no es necesario instalar nada.
+> 👉 **[Probar de manera online](https://api-red-social-five.vercel.app/api-docs/)**
 1. Clonar el repositorio
 
 ```bash
 git clone https://github.com/ZennonGihub/ApiRedSocial
-cd CursoNodeJs
+cd ApiRedSocial
 ```
-
+    
 2. Instalar dependencias
-
 ```bash
 npm install
 ```
 
 3. crear archivo .env clonando los datos del env-example
 
-4. Ejecutar el proyecto
+```properties
+PORT=3000
+API_KEY=tu_api_key
+
+# -- Seguridad (JWT) --
+JWT_SECRET=tu_secreto_super_seguro
+
+# -- Base de Datos (MySQL) --
+DB_NAME=nombre_base_datos
+DB_USER=root
+DB_PASSWORD=password
+DB_HOST=localhost
+DB_PORT=3306
+
+# -- Redis (Caché) --
+REDIS_URL=redis://default:password@host:port
+REDIS_PASSWORD=redis_password
+REDIS_HOST=redis_host
+REDIS_PORT=18444
+```
+
+4. Ejecutar el proyecto 
 
 ```bash
 npm run dev
