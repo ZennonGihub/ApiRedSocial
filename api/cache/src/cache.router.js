@@ -1,5 +1,5 @@
 const express = require("express");
-const response = require("../../api/Response/response.js");
+const response = require("../../Response/response.js");
 const store = require("../../store/redis.js");
 
 const router = express.Router();

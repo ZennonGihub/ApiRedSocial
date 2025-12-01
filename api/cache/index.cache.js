@@ -1,5 +1,5 @@
 const express = require("express");
-const config = require("../config");
+const config = require("../../config.js");
 const router = require("./src/cache.router.js");
 const { connect } = require("../store/redis");
 const app = express();
