@@ -1,0 +1,241 @@
+openapi: 3.0.0
+info:
+  title: API Red Social - Portafolio
+  description: >
+    API Backend construida con Node.js, Express y MySQL.
+
+    Permite a los usuarios registrarse, iniciar sesión (JWT), y gestionar posts y comentarios.
+
+    **Nota para Reclutadores:** Para probar los endpoints protegidos (candado), usa el endpoint de Login para obtener un Token.
+  version: 1.0.0
+  contact:
+    name: ZennonGihub
+    url: https://github.com/ZennonGihub/ApiRedSocial
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Servidor Local (Desarrollo)
+  - url: https://api-red-social-five.vercel.app/api/v1
+    description: Servidor Producción (Vercel)
+
+# COMPONENTES
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # MODELOS DE AUTH
+    LoginInput:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: "tito_dev"
+        password:
+          type: string
+          format: password
+          example: "secreto123"
+
+    AuthResponse:
+      type: object
+      properties:
+        error:
+          type: boolean
+          example: false
+        status:
+          type: integer
+          example: 201
+        body:
+          type: string
+          description: Token JWT
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    # MODELOS DE COMMENTS
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 15
+        contenido:
+          type: string
+          example: "Excelente post, muy útil!"
+        post_id:
+          type: integer
+          example: 3
+        user_id:
+          type: string
+          example: "user-123"
+        fecha:
+          type: string
+          format: date-time
+          example: "2023-11-20T10:00:00Z"
+
+    CommentInput:
+      type: object
+      required:
+        - contenido
+      properties:
+        contenido:
+          type: string
+          description: El texto del comentario
+          example: "Me ha gustado mucho este contenido."
+
+# RUTAS
+
+paths:
+  # AUTH
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Iniciar Sesión
+      description: Devuelve un Token JWT si las credenciales son correctas.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        201:
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        401:
+          description: Credenciales inválidas
+
+  # COMMENTS
+  /comments:
+    get:
+      tags:
+        - Comments
+      summary: Listar todos los comentarios
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Lista de comentarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+
+  /comments/{idPost}/{commentId}:
+    get:
+      tags:
+        - Comments
+      summary: Ver un comentario específico
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: idPost
+          schema: { type: integer }
+          required: true
+        - in: path
+          name: commentId
+          schema: { type: integer }
+          required: true
+      responses:
+        200:
+          description: Detalle del comentario
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+
+    delete:
+      tags:
+        - Comments
+      summary: Eliminar un comentario
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: idPost
+          schema: { type: integer }
+          required: true
+        - in: path
+          name: commentId
+          schema: { type: integer }
+          required: true
+      responses:
+        200:
+          description: Comentario eliminado
+
+  /comments/{post}/crear:
+    post:
+      tags:
+        - Comments
+      summary: Crear comentario en un post
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: post
+          schema: { type: integer }
+          required: true
+          description: ID del Post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentInput"
+      responses:
+        201:
+          description: Comentario creado
+
+  /comments/{id}:
+    patch:
+      tags:
+        - Comments
+      summary: Editar comentario
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema: { type: integer }
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentInput"
+      responses:
+        200:
+          description: Comentario actualizado
+
+  /comments/{user}/{id}/like:
+    post:
+      tags:
+        - Comments
+      summary: Dar like a comentario
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: user
+          schema: { type: string }
+          required: true
+        - in: path
+          name: id
+          schema: { type: integer }
+          required: true
+      responses:
+        201:
+          description: Like registrado
