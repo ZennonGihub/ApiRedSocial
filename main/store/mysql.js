@@ -20,10 +20,10 @@ const tablesList = [
   "auth",
   "posts",
   "follows",
-  "comentarios",
-  "estadopost",
-  "likecomentarios",
-  "likepost",
+  "comments",
+  "post_states",
+  "comment_likes",
+  "post_likes",
 ];
 const columnsPosts = [
   "title",

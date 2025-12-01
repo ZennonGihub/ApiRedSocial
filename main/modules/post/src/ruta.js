@@ -48,7 +48,7 @@ router.patch(
 );
 
 router.post(
-  "/crear",
+  "/",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {

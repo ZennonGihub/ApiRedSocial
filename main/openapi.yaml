@@ -4,12 +4,13 @@ info:
   description: >
     API Backend construida con Node.js, Express y MySQL.
 
-    Permite a los usuarios registrarse, iniciar sesión (JWT), y gestionar posts y comentarios.
+    Permite a los usuarios registrarse, iniciar sesión (JWT), gestionar posts, dar like a post, comentar y seguir a otros usuarios.
 
-    **Nota para Reclutadores:** Para probar los endpoints protegidos (candado), usa el endpoint de Login para obtener un Token.
+    1. Para probar endpoints protegidos con 🔒 (JWT), usa el Login primero (name: user123. password: ). 
+    2. Para crear usuarios (POST /user), se requiere una API Key (simulada o provista en README).
   version: 1.0.0
   contact:
-    name: ZennonGihub
+    name: Zennon
     url: https://github.com/ZennonGihub/ApiRedSocial
 
 servers:
@@ -19,13 +20,17 @@ servers:
     description: Servidor Producción (Vercel)
 
 # COMPONENTES
-
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: api_key
 
   schemas:
     # MODELOS DE AUTH
@@ -56,6 +61,70 @@ components:
           type: string
           description: Token JWT
           example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    # MODELOS DE USER
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "user-uuid-1234"
+        username:
+          type: string
+          example: "tito_dev"
+        name:
+          type: string
+          example: "Tito Developer"
+
+    UserInput:
+      type: object
+      required:
+        - username
+        - password
+        - name
+      properties:
+        name:
+          type: string
+          example: "Nuevo Usuario"
+        username:
+          type: string
+          example: "nuevo_user"
+        password:
+          type: string
+          format: password
+          example: "123456"
+
+    # MODELOS DE POST
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        text:
+          type: string
+          example: "Este es un nuevo post en mi muro!"
+        user_id:
+          type: string
+          example: "user-555"
+        image:
+          type: string
+          description: URL de la imagen (opcional)
+          example: "https://mi-bucket.com/foto.jpg"
+
+    PostInput:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+          description: Contenido del post
+          example: "Programando mi API con Node.js"
+        image:
+          type: string
+          description: URL de una imagen opcional
+          example: "https://mi-imagen.com/perfil.png"
 
     # MODELOS DE COMMENTS
     Comment:
@@ -89,7 +158,6 @@ components:
           example: "Me ha gustado mucho este contenido."
 
 # RUTAS
-
 paths:
   # AUTH
   /auth/login:
@@ -113,6 +181,247 @@ paths:
                 $ref: "#/components/schemas/AuthResponse"
         401:
           description: Credenciales inválidas
+
+  # USER
+  /user:
+    get:
+      tags:
+        - User
+      summary: Listar todos los usuarios
+      description: Obtiene lista de usuarios. Público (sin Auth).
+      responses:
+        200:
+          description: Lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+    post:
+      tags:
+        - User
+      summary: Registrar nuevo usuario
+      description: Crea un usuario. Requiere API Key para evitar spam.
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        201:
+          description: Usuario creado exitosamente
+        500:
+          description: Error al crear usuario
+
+  /user/{id}:
+    get:
+      tags:
+        - User
+      summary: Obtener usuario por ID
+      parameters:
+        - in: path
+          name: id
+          schema: { type: string }
+          required: true
+      responses:
+        200:
+          description: Datos del usuario
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+    patch:
+      tags:
+        - User
+      summary: Actualizar usuario
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema: { type: string }
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        200:
+          description: Usuario actualizado
+
+    delete:
+      tags:
+        - User
+      summary: Eliminar usuario
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema: { type: string }
+          required: true
+      responses:
+        200:
+          description: Usuario eliminado
+
+  /user/follow/{id}:
+    post:
+      tags:
+        - User
+      summary: Seguir a un usuario
+      description: El usuario logueado sigue al usuario del ID especificado.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema: { type: string }
+          required: true
+          description: ID del usuario a seguir
+      responses:
+        201:
+          description: Follow exitoso
+
+  /user/{id}/following:
+    get:
+      tags:
+        - User
+      summary: Ver a quién sigue un usuario
+      parameters:
+        - in: path
+          name: id
+          schema: { type: string }
+          required: true
+      responses:
+        201:
+          description: Lista de seguidos
+
+  # POSTS
+  /post:
+    get:
+      tags:
+        - Post
+      summary: Listar todos los posts
+      description: Obtiene la lista completa de publicaciones. Requiere Token.
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Lista de posts obtenida
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+        401:
+          description: No autorizado (Falta Token)
+
+  /post/crear:
+    post:
+      tags:
+        - Post
+      summary: Crear un nuevo post
+      description: Crea una publicación asociada al usuario del Token.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostInput"
+      responses:
+        201:
+          description: Post creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+
+  /post/{id}:
+    get:
+      tags:
+        - Post
+      summary: Obtener un post por ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema: { type: integer }
+          required: true
+          description: ID del post a buscar
+      responses:
+        200:
+          description: Detalle del post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        404:
+          description: Post no encontrado
+
+    patch:
+      tags:
+        - Post
+      summary: Actualizar un post
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema: { type: integer }
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostInput"
+      responses:
+        200:
+          description: Post actualizado correctamente
+
+    delete:
+      tags:
+        - Post
+      summary: Eliminar un post
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema: { type: integer }
+          required: true
+      responses:
+        201:
+          description: Post eliminado correctamente
+
+  /post/{id}/like:
+    post:
+      tags:
+        - Post
+      summary: Dar Like a un post
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema: { type: integer }
+          required: true
+          description: ID del post al que dar like
+      responses:
+        201:
+          description: Like registrado exitosamente
 
   # COMMENTS
   /comments:
