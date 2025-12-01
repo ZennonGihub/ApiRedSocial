@@ -1,14 +1,14 @@
 require("dotenv").config();
 const express = require("express");
-const errors = require("./Response/errors");
+const errors = require("../main/Response/errors.js");
 const cookieParser = require("cookie-parser");
-const routerApi = require("./router/index");
-const passport = require("./utils/index");
+const routerApi = require("../main/router/index");
+const passport = require("../main/utils/index");
 const {
   logsErrors,
   boomErrorHandler,
   errorHandler,
-} = require("./middleware/error.handler");
+} = require("../main/middleware/error.handler");
 
 const app = express();
 app.use(cookieParser());
