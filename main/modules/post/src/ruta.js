@@ -5,6 +5,7 @@ const passport = require("passport");
 
 const router = express.Router();
 
+// Buscar posts
 router.get(
   "/",
   passport.authenticate("jwt", { session: false }),
@@ -17,7 +18,7 @@ router.get(
     }
   }
 );
-
+// Buscar 1 post
 router.get(
   "/:id",
   passport.authenticate("jwt", { session: false }),
@@ -31,7 +32,7 @@ router.get(
     }
   }
 );
-
+// Actualizar post
 router.patch(
   "/:id",
   passport.authenticate("jwt", { session: false }),
@@ -46,7 +47,7 @@ router.patch(
     }
   }
 );
-
+// Crear post
 router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
@@ -62,6 +63,7 @@ router.post(
   }
 );
 
+// Eliminar post
 router.delete(
   "/:id",
   passport.authenticate("jwt", { session: false }),
@@ -75,7 +77,7 @@ router.delete(
     }
   }
 );
-
+// Like a post
 router.post(
   "/:id/like",
   passport.authenticate("jwt", { session: false }),

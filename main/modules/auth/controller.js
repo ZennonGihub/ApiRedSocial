@@ -29,9 +29,7 @@ module.exports = function (injectedDb) {
         };
         return db.create(TABLA, authData);
       } else {
-        throw boom.badRequest(
-          "Missing required fields: password, username, or email"
-        );
+        throw boom.badRequest("Se requiere contraseña y email");
       }
     } catch (error) {
       throw boom.badRequest(error.message);
