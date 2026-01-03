@@ -9,7 +9,7 @@ const table = ["post_likes"];
 module.exports = function (injectedDb) {
   let db = injectedDb;
   if (!db) {
-    db = require("../../../store/mysql");
+    db = require("../../store/mysql");
   }
 
   async function getFullComments() {

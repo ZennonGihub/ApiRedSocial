@@ -11,13 +11,7 @@ const config = {
   dbpassword: process.env.DB_PASSWORD,
   host: process.env.DB_HOST,
   portdb: process.env.DB_PORT,
-  // microservicio mysql
-  mysqlServicePort: process.env.MYSQ_SERVICE_PORT || 3001,
-  mysqlServiceHost: process.env.MYSQ_SERVICE_HOST || "localhost",
-  // microservicio de post
-  postPort: process.env.POST_PORT || 3002,
-  postHost: process.env.POST_HOST || "localhost",
-  // microservicio de redis
+  // redis
   redisServicesPort: process.env.REDIS_SERVICE_PORT || 3003,
   redisServicesUrl: process.env.REDIS_URL,
   redisServicePass: process.env.REDIS_PASSWORD,

@@ -33,9 +33,8 @@ app.use(boomErrorHandler);
 app.use(errorHandler);
 app.use(errors);
 
-/*
 app.listen(3000, () => {
   console.log("Listening on port 3000");
 });
-*/
+
 module.exports = app;

@@ -7,7 +7,7 @@ const TABLA_FOLLOW = "follows";
 module.exports = function (injectedDb) {
   let db = injectedDb;
   if (!db) {
-    db = require("../../../store/mysql");
+    db = require("../../store/mysql");
   }
 
   async function list() {
@@ -15,7 +15,7 @@ module.exports = function (injectedDb) {
     if (!result) {
       throw boom.notFound("Usuarios no encontrados");
     }
-    return result[0];
+    return result;
   }
 
   async function get(id) {
@@ -30,7 +30,7 @@ module.exports = function (injectedDb) {
     const user = {
       username: body.username,
       name: body.name,
-      descripcion: body.descripcion,
+      description: body.description,
       id: id,
     };
     return db.update(TABLA, user);
@@ -39,7 +39,7 @@ module.exports = function (injectedDb) {
   async function create(body) {
     const user = {
       username: body.username,
-      descripcion: body.descripcion || null,
+      description: body.description || null,
     };
     const userResult = await db.create(TABLA, user);
     const newUserId = userResult.insertId;
