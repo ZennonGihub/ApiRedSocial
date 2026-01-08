@@ -1,5 +1,5 @@
 services:
-  PROYECTONODE:
+  apiredsocial:
     image: redsocial:1.0
     build:
       context: .
@@ -25,5 +25,14 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
       - ./redsocial.sql:/docker-entrypoint-initdb.d/init.sql
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    comand: redis-server --save 60 1 --loglevel warning
+
 volumes:
   mysql-data:
+  redis-data:
