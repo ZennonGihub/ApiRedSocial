@@ -1,0 +1,29 @@
+services:
+  PROYECTONODE:
+    image: redsocial:1.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - MYSQL
+  MYSQL:
+    image: mysql:8.0.42-bookworm
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./redsocial.sql:/docker-entrypoint-initdb.d/init.sql
+volumes:
+  mysql-data:
