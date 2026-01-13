@@ -1,8 +1,8 @@
 const express = require("express");
-const user = require("../modules/users/index.js");
-const auth = require("../modules/auth/index.js");
-const post = require("../modules/post/index.js");
-const comments = require("../modules/comments/ruta");
+const user = require("../modules/users/ruta.js");
+const auth = require("../modules/auth/ruta.js");
+const post = require("../modules/post/ruta.js");
+const comments = require("../modules/comments/ruta.js");
 const { checkApiKey } = require("../middleware/auth.handler");
 
 const app = express();

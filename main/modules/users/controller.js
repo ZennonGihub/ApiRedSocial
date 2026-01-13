@@ -1,5 +1,6 @@
-const crtl = require("../auth/dependencia");
 const boom = require("@hapi/boom");
+const redis = require("../../store/redis.js");
+const crtl = require("../auth/dependencia");
 
 const TABLA = "users";
 const TABLA_FOLLOW = "follows";
@@ -11,18 +12,28 @@ module.exports = function (injectedDb) {
   }
 
   async function list() {
+    const cache = await redis.get(TABLA);
+    if (cache) {
+      return cache;
+    }
     const result = await db.list(TABLA);
     if (!result) {
       throw boom.notFound("Usuarios no encontrados");
     }
+    await redis.set(TABLA, result);
     return result;
   }
 
   async function get(id) {
+    const cache = await redis.getId(TABLA, id);
+    if (cache) {
+      return cache;
+    }
     const result = await db.get(TABLA, id);
     if (!result) {
       throw boom.notFound("Usuario no encontrado");
     }
+    await redis.set(`${TABLA}:${id}`, result[0]);
     return result[0];
   }
 
@@ -33,7 +44,12 @@ module.exports = function (injectedDb) {
       description: body.description,
       id: id,
     };
-    return db.update(TABLA, user);
+    const result = await db.update(TABLA, user);
+
+    await redis.removeId(TABLA, id);
+    await redis.remove(TABLA);
+
+    return result;
   }
 
   async function create(body) {
@@ -49,23 +65,37 @@ module.exports = function (injectedDb) {
       password_hash: body.password,
     };
     await crtl.createAuth(authData);
+    // Eliminamos la caché de la lista de usuarios
+    await redis.remove(TABLA);
     return { id: newUserId, ...user };
   }
   async function remove(id) {
-    return db.remove(TABLA, id);
+    const result = await db.remove(TABLA, id);
+    await redis.removeId(TABLA, id);
+    await redis.remove(TABLA);
+    return result;
   }
 
-  function follow(from, to) {
-    return db.create(TABLA_FOLLOW, {
+  async function follow(from, to) {
+    const result = await db.create(TABLA_FOLLOW, {
       follow_to: to,
       follow_from: from,
     });
+    await redis.remove(`${TABLA}:following:${from}`);
+    return result;
   }
   async function following(user) {
+    const cache = await redis.get(`${TABLA}:following:${user}`);
+    if (cache) {
+      return cache;
+    }
     const join = {};
     join[TABLA] = "follow_to";
     const query = { follow_from: user };
-    return await db.query(TABLA_FOLLOW, query, join);
+    const result = await db.query(TABLA_FOLLOW, query, join);
+    await redis.set(`${TABLA}:following:${user}`, result);
+
+    return result;
   }
   return {
     list,

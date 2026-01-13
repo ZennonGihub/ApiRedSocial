@@ -55,19 +55,15 @@ router.patch(
   }
 );
 
-router.post(
-  "/",
-  passport.authenticate("jwt", { session: false }),
-  async (req, res) => {
-    try {
-      const body = req.body;
-      const nuevoUser = await controller.create(body);
-      response.success(req, res, nuevoUser, 201);
-    } catch (error) {
-      response.error(req, res, error.message, 500);
-    }
+router.post("/", async (req, res) => {
+  try {
+    const body = req.body;
+    const nuevoUser = await controller.create(body);
+    response.success(req, res, nuevoUser, 201);
+  } catch (error) {
+    response.error(req, res, error.message, 500);
   }
-);
+});
 
 router.get(
   "/:id/following",
