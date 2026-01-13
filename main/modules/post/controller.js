@@ -1,26 +1,40 @@
+const boom = require("@hapi/boom");
+const redis = require("../../store/redis.js");
 const TABLA = "posts";
-const tablaPost = "post_likes";
-const tablaEstado = "post_states";
 
 module.exports = function (injectedDb) {
   let db = injectedDb;
   if (!db) {
-    db = require("../../../../store/mysql");
+    db = require("../../store/mysql");
   }
 
   async function list() {
+    const cache = await redis.get(TABLA);
+    if (cache) {
+      return cache;
+    }
     const result = await db.list(TABLA);
     if (!result) {
       throw boom.notFound("No se encontraron posts");
     }
+
+    await redis.set(TABLA, result);
+
     return result;
   }
 
   async function getPost(id) {
+    const cache = await redis.getId(TABLA, id);
+    if (cache) {
+      return cache;
+    }
     const result = await db.get(TABLA, id);
     if (!result) {
       throw boom.notFound("No se encontro el post");
     }
+
+    await redis.set(`${TABLA}:${id}`, result);
+
     return result;
   }
 
@@ -29,20 +43,26 @@ module.exports = function (injectedDb) {
     if (!result) {
       throw boom.notFound("No se pudo eliminar el post");
     }
+    await redis.removeId(TABLA, id);
+
+    await redis.remove(TABLA);
+
     return result;
   }
 
   async function create(user, body) {
-    const resultEstado = await db.create(tablaEstado, { estado: "activo" });
-    const newEstadoId = resultEstado.insertId;
     const post = {
       title: body.title,
       body: body.body,
       user_id: user.user_id,
-      estadoPost_id: newEstadoId,
+      post_state_id: 1,
     };
+    console.log(post);
     const newPost = await db.create(TABLA, post);
     const resultId = newPost.insertId;
+
+    await redis.remove(TABLA);
+
     return { resultId, ...post };
   }
 
@@ -54,7 +74,12 @@ module.exports = function (injectedDb) {
       ...body,
       id,
     };
-    return db.update(TABLA, newPost);
+    const result = db.update(TABLA, newPost);
+
+    await redis.removeId(TABLA, id);
+    await redis.remove(TABLA);
+
+    return result;
   }
 
   async function insertForeignKey(tablaPost, body) {

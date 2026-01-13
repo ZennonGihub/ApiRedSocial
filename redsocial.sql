@@ -69,3 +69,7 @@ create table comment_likes (
   CONSTRAINT fk_userLikeComment FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   CONSTRAINT fk_commentLike FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE
 );
+
+INSERT INTO post_states (id, name) VALUES (1, 'Activo');
+INSERT INTO post_states (id, name) VALUES (2, 'Inactivo');
+INSERT INTO post_states (id, name) VALUES (3, 'Eliminado');

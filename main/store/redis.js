@@ -4,20 +4,14 @@ const client = createClient({
   url: process.env.REDIS_URL,
 });
 
-client.on("error", (err) => {});
-
-const connect = async () => {
-  try {
-    await client.connect();
-  } catch (error) {
-    throw error.message;
-  }
-};
+client.on("error", (err) => {
+  console.error("Redis Client Error", err);
+});
 
 async function get(tabla) {
   if (!tabla) return null;
   const result = await client.get(tabla);
-  if (result === null) return null;
+  if (!result) return null;
   return JSON.parse(result);
 }
 
@@ -29,14 +23,32 @@ async function getId(tabla, id) {
 
 async function set(key, value) {
   if (!value) return null;
-  const result = await client.set(key, JSON.stringify(value));
+  const result = await client.set(key, JSON.stringify(value), { EX: 60 });
   if (result === null) return null;
   return result;
+}
+
+async function remove(key) {
+  if (!key) return null;
+  try {
+    await client.del(key);
+    return true;
+  } catch (error) {
+    console.error("Error al remover la keys en redis:", error);
+  }
+}
+
+async function removeId(tabla, id) {
+  if (!tabla || !id) return null;
+  let key = `${tabla}:${id}`;
+  return await remove(key);
 }
 
 module.exports = {
   get,
   getId,
   set,
-  connect,
+  remove,
+  removeId,
+  client,
 };

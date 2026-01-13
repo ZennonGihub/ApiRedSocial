@@ -1,4 +1,4 @@
-const ctrl = require("../post/src/dependencia");
+const ctrl = require("../post/dependencia.js");
 const TABLA = "comments";
 const tablaLikeComentarios = "comment_likes";
 const boom = require("@hapi/boom");
@@ -13,13 +13,16 @@ module.exports = function (injectedDb) {
   }
 
   async function getFullComments() {
-    {
-      const result = await db.list(TABLA);
-      console.log("El resultado de getFullComments es:", result);
-      if (!result) {
-        throw boom.notFound("Comentarios no encontrados");
-      }
+    const cache = await redis.get(TABLA);
+    if (cache) {
+      return cache;
     }
+    const result = await db.list(TABLA);
+    if (!result) {
+      throw boom.notFound("Comentarios no encontrados");
+    }
+    await redis.set(TABLA, result);
+
     return result;
   }
   async function getComment(id, commentId) {
