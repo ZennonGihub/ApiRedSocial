@@ -1,51 +1,24 @@
-const bcrypt = require("bcrypt");
-const auth = require("../../utils/jwt");
-const TABLA = "auth";
-const boom = require("@hapi/boom");
-const config = require("dotenv");
+const response = require("../../Response/response.js");
+const controller = require("./dependencia.js");
 
-module.exports = function (injectedDb) {
-  let db = injectedDb;
-  if (!db) {
-    db = require("../../store/mysql");
+const login = async (req, res, next) => {
+  try {
+    const user = req.user;
+    const userToken = await controller.login(user);
+    response.success(req, res, userToken, 201);
+  } catch (error) {
+    next(error);
   }
-  async function login(user) {
-    if (!user) {
-      throw boom.unauthorized();
-    }
-    const payload = {
-      sub: user.user_id,
-    };
-    return auth.sign(payload, config.jwtsecret, { expiresIn: "1d" });
-  }
-
-  async function createAuth(data) {
-    try {
-      if (data.password_hash && data.email && data.user_id) {
-        const authData = {
-          user_id: data.user_id,
-          email: data.email,
-          password_hash: await bcrypt.hash(data.password_hash, 10),
-        };
-        return db.create(TABLA, authData);
-      } else {
-        throw boom.badRequest("Se requiere contraseña y email");
-      }
-    } catch (error) {
-      throw boom.badRequest(error.message);
-    }
-  }
-
-  async function getByEmail(email) {
-    return db.getEmail(TABLA, email);
-  }
-  async function getUser(id) {
-    return db.getUserId(TABLA, id);
-  }
-  return {
-    createAuth,
-    login,
-    getByEmail,
-    getUser,
-  };
 };
+
+const createUser = async (req, res, next) => {
+  try {
+    const body = req.body;
+    const nuevoUser = await controller.create(body);
+    response.success(req, res, nuevoUser, 201);
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { login, createUser };

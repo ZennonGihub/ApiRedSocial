@@ -1,6 +1,5 @@
 const { Strategy, ExtractJwt } = require("passport-jwt");
-const boom = require("@hapi/boom");
-const controller = require("../../modules/auth/controller")();
+const controller = require("../../modules/auth/services.js")();
 const config = require("../../../config");
 
 const options = {
