@@ -1,97 +1,88 @@
-const boom = require("@hapi/boom");
-const redis = require("../../store/redis.js");
-const TABLA = "posts";
+const response = require("../../Response/response.js");
+const controller = require("./dependencia.js");
 
-module.exports = function (injectedDb) {
-  let db = injectedDb;
-  if (!db) {
-    db = require("../../store/mysql");
-  }
+const { client } = require("../../store/redis.js");
 
-  async function list() {
-    const cache = await redis.get(TABLA);
-    if (cache) {
-      return cache;
+// Buscar posts
+const list = async (req, res, next) => {
+  try {
+    const listaCache = await client.get("posts");
+
+    if (listaCache) {
+      return response.success(req, res, JSON.parse(listaCache), 200);
     }
-    const result = await db.list(TABLA);
-    if (!result) {
-      throw boom.notFound("No se encontraron posts");
-    }
-
-    await redis.set(TABLA, result);
-
-    return result;
+    const lista = await controller.list();
+    const saveResult = await client.set("posts", JSON.stringify(lista), {
+      EX: 60,
+    });
+    response.success(req, res, lista, 200);
+  } catch (error) {
+    next(error);
   }
+};
 
-  async function getPost(id) {
-    const cache = await redis.getId(TABLA, id);
-    if (cache) {
-      return cache;
-    }
-    const result = await db.get(TABLA, id);
-    if (!result) {
-      throw boom.notFound("No se encontro el post");
-    }
-
-    await redis.set(`${TABLA}:${id}`, result);
-
-    return result;
+// Buscar 1 post
+const getOnePost = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const result = await controller.getPost(id);
+    response.success(req, res, result, 200);
+  } catch (error) {
+    next(error);
   }
+};
 
-  async function remove(id) {
-    const result = await db.remove(TABLA, id);
-    if (!result) {
-      throw boom.notFound("No se pudo eliminar el post");
-    }
-    await redis.removeId(TABLA, id);
-
-    await redis.remove(TABLA);
-
-    return result;
+// Actualizar post
+const updatePost = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const body = req.body;
+    const post = await controller.update(id, body);
+    response.success(req, res, post, 200);
+  } catch (error) {
+    next(error);
   }
+};
 
-  async function create(user, body) {
-    const post = {
-      title: body.title,
-      body: body.body,
-      user_id: user.user_id,
-      post_state_id: 1,
-    };
-    console.log(post);
-    const newPost = await db.create(TABLA, post);
-    const resultId = newPost.insertId;
-
-    await redis.remove(TABLA);
-
-    return { resultId, ...post };
+// Crear post
+const createPost = async (req, res, next) => {
+  try {
+    const user = req.user;
+    const body = req.body;
+    const post = await controller.create(user, body);
+    response.success(req, res, post, 201);
+  } catch (error) {
+    next(error);
   }
+};
 
-  async function update(id, body) {
-    if (!id || !body) {
-      throw boom.badRequest("ID y body son requeridos para actualizar el post");
-    }
-    const newPost = {
-      ...body,
-      id,
-    };
-    const result = db.update(TABLA, newPost);
-
-    await redis.removeId(TABLA, id);
-    await redis.remove(TABLA);
-
-    return result;
+// Eliminar post
+const removePost = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const postRemoved = await controller.remove(id);
+    response.success(req, res, postRemoved, 201);
+  } catch (error) {
+    next(error);
   }
+};
 
-  async function insertForeignKey(tablaPost, body) {
-    return db.create(tablaPost, body);
+// Like a post
+const likePost = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const post = await controller.insertForeignKey(id, req.body);
+    response.success(req, res, post, 201);
+  } catch (error) {
+    next(error);
   }
+};
 
-  return {
-    list,
-    getPost,
-    remove,
-    create,
-    update,
-    insertForeignKey,
-  };
+module.exports = {
+  list,
+  getOnePost,
+  updatePost,
+  createPost,
+  removePost,
+  likePost,
 };

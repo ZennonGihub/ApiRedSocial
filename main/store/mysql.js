@@ -90,7 +90,7 @@ async function getEmail(table, email) {
     ]);
     return rows[0];
   } catch (error) {
-    throw boom.badData("Error en la consulta de email");
+    throw boom.badData("Error en la consulta de email: " + error.message);
   }
 }
 
@@ -132,7 +132,7 @@ async function create(table, data) {
     const result = await pool.query(`INSERT INTO ${table} SET ?`, [insertData]);
     return result[0];
   } catch (error) {
-    throw new Error(error.message);
+    throw boom.badRequest("Error en la consulta de creación: " + error.message);
   }
 }
 
@@ -149,7 +149,6 @@ async function remove(table, id) {
     throw boom.badData("Table not allowed");
   }
   try {
-    console.log("El id en mysql remove es:", id);
     const result = await pool.query(`DELETE FROM ${table} WHERE id=?`, [id]);
     return result[0];
   } catch (error) {

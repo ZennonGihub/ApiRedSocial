@@ -1,91 +1,75 @@
-const ctrl = require("../post/dependencia.js");
-const TABLA = "comments";
-const tablaLikeComentarios = "comment_likes";
-const boom = require("@hapi/boom");
-const tablaPost = "posts";
+const response = require("../../Response/response.js");
+const controller = require("./dependencia.js");
 
-const table = ["post_likes"];
+const list = async (req, res, next) => {
+  try {
+    const list = await controller.getFullComments();
+    response.success(req, res, list, 200);
+  } catch (error) {
+    next(error);
+  }
+};
 
-module.exports = function (injectedDb) {
-  let db = injectedDb;
-  if (!db) {
-    db = require("../../store/mysql");
+const getOneComment = async (req, res, next) => {
+  try {
+    const id = req.params.idPost;
+    const comment = req.params.comment;
+    const result = await controller.getComment(id, comment);
+    response.success(req, res, result, 200);
+  } catch (error) {
+    next(error);
   }
+};
 
-  async function getFullComments() {
-    const cache = await redis.get(TABLA);
-    if (cache) {
-      return cache;
-    }
-    const result = await db.list(TABLA);
-    if (!result) {
-      throw boom.notFound("Comentarios no encontrados");
-    }
-    await redis.set(TABLA, result);
+const createComment = async (req, res, next) => {
+  try {
+    const id = req.params.post;
+    const user = req.user;
+    const body = req.body;
+    const newComment = await controller.createComment(id, user, body);
+    response.success(req, res, newComment, 201);
+  } catch (error) {
+    next(error);
+  }
+};
+const removeComment = async (req, res, next) => {
+  try {
+    const id = req.params.idPost;
+    const comment = req.params.comment;
+    const result = await controller.deleteComment(id, comment);
+    response.success(req, res, result, 200);
+  } catch (error) {
+    next(error);
+  }
+};
 
-    return result;
+const updateComment = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const body = req.body;
+    const updatedComment = await controller.updatedComment(id, body);
+    response.success(req, res, updatedComment, 200);
+  } catch (error) {
+    next(error);
   }
-  async function getComment(id, commentId) {
-    const post = await ctrl.getPost(tablaPost, id);
-    if (!post) {
-      throw boom.notFound("Post no encontrado");
-    }
-    const result = await db.getCommentPost(TABLA, id, commentId);
-    if (!result) {
-      throw boom.notFound("Comentario no encontrado");
-    }
-    return result[0];
+};
+
+const likeComment = async (req, res, next) => {
+  try {
+    const idcomentario = req.params.id;
+    const id = req.user;
+    const likedComment = await controller.likeComment(id, idcomentario);
+    response.success(req, res, likedComment, 201);
+  } catch (error) {
+    next(error);
   }
-  async function createComment(id, user, data) {
-    const comment = {
-      comentario: data.comentario,
-      post_id: id,
-      user_id: user.user_id,
-    };
-    const newComment = await db.create(TABLA, comment);
-    const resultId = newComment.insertId;
-    return { id: resultId, ...comment };
-  }
-  async function deleteComment(id, commentId) {
-    const post = await ctrl.getPost(tablaPost, id);
-    if (!post) {
-      throw boom.notFound("Post no encontrado");
-    }
-    const result = await db.getCommentPost(TABLA, id, commentId);
-    if (!result) {
-      throw boom.notFound("Comentario no encontrado");
-    }
-    const deletedComment = await db.remove(TABLA, result[0]);
-    return result[0];
-  }
-  async function updatedComment(data) {
-    if (!data) {
-      throw boom.badRequest("No viene informacion");
-    }
-    const result = await db.update(TABLA, data);
-    return result[0];
-  }
-  async function likeComment(data) {
-    if (!tablesList.includes(table)) {
-      throw boom.badData("Table not allowed");
-    }
-    try {
-      const { user_id, idcomentario } = data;
-      const result = await pool.query(`INSERT INTO ${table} SET ?`, [
-        user_id,
-        idcomentario,
-      ]);
-      return result[0];
-    } catch (error) {
-      throw boom.badRequest(error.message);
-    }
-  }
-  return {
-    getFullComments,
-    getComment,
-    createComment,
-    deleteComment,
-    updatedComment,
-    likeComment,
-  };
+};
+
+module.exports = {
+  list,
+  getOneComment,
+  createComment,
+  removeComment,
+  updateComment,
+  likeComment,
 };
